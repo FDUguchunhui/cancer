@@ -11,15 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(readxl)
+library(summarytools)
 ```
 
 ```{r}
 # libname B "Z:\8 GQ Zhang group";
-# /*PROC IMPORT OUT= B.RAWDATA_old 
+# /*PROC IMPORT OUT= B.RAWDATA_old
 #             DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov
-# id_20210315.xlsx" 
+# id_20210315.xlsx"
 #             DBMS=EXCEL REPLACE;
-#      RANGE="Cancer_covid_20210315$"; 
+#      RANGE="Cancer_covid_20210315$";
 #      GETNAMES=YES;
 #      MIXED=NO;
 #      SCANTEXT=YES;
@@ -27,8 +28,8 @@ library(readxl)
 #      SCANTIME=YES;
 # RUN;
 
-# read the raw data 
-# rawdata_old_buffer <- read_excel('data/Cancer_covid_20210315.xlsx')
+# read the raw data
+rawdata_old_buffer <- read_excel('data/Cancer_covid_20210315.xlsx')
 ```
 
 ```{r}
@@ -56,7 +57,7 @@ rawdata_old <- rawdata_old %>%
 
 
 ```{r}
-# recent_buffer <- read_excel('data/Cancer_covid_20210319_addtional.xlsx')
+recent_buffer <- read_excel('data/Cancer_covid_20210319_addtional.xlsx')
 ```
 
 ```{r}
@@ -208,5 +209,19 @@ rawdata1 <- rawdata1 %>%
          ifelse(age >= 65 && age < 75, '65-75',
          ifelse(age >= 75), '>= 75', NA)))))
 
+```
+
+```{r}
+mean(rawdata1$birth_yr, na.rm = TRUE)
+```
+
+
+check whether the processed data has the same fingerprints as SAS processed data
+```{r}
+descr(rawdata1, round.digits = 4)
+```
+
+```{r}
+save(rawdata1, file = 'data/rawdata1.RData')
 ```
 
