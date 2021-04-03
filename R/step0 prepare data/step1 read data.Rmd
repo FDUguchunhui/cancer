@@ -1,0 +1,212 @@
+---
+title: "step0 data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+# libname B "Z:\8 GQ Zhang group";
+# /*PROC IMPORT OUT= B.RAWDATA_old 
+#             DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov
+# id_20210315.xlsx" 
+#             DBMS=EXCEL REPLACE;
+#      RANGE="Cancer_covid_20210315$"; 
+#      GETNAMES=YES;
+#      MIXED=NO;
+#      SCANTEXT=YES;
+#      USEDATE=YES;
+#      SCANTIME=YES;
+# RUN;
+
+# read the raw data 
+# rawdata_old_buffer <- read_excel('data/Cancer_covid_20210315.xlsx')
+```
+
+```{r}
+rawdata_old <- rawdata_old_buffer
+```
+
+
+```{r}
+colnames(rawdata_old) <- tolower(colnames(rawdata_old))
+```
+
+
+```{r}
+# SAS is case-insensitive in variable names
+# for convenience, convert all variable names to lower case
+head(rawdata_old)
+```
+
+```{r}
+# delete unused columns
+rawdata_old <- rawdata_old %>% 
+  select(-tolower(c('MA_Cytotoxic_4w', 'MA_Non_Cytotoxic_4w', 'PR_Cytotoxic_4w', 'PR_Non_Cytotoxic_4w', 'PS_Cytotoxic_4w', 'PS_Non_Cytotoxic_4w', 'Radiation_4w', 'Surgery_4w')))
+```
+
+
+
+```{r}
+# recent_buffer <- read_excel('data/Cancer_covid_20210319_addtional.xlsx')
+```
+
+```{r}
+recent <- recent_buffer 
+```
+
+```{r}
+colnames(recent) <- tolower(colnames(recent))
+```
+
+
+```{r}
+head(recent)
+```
+
+
+
+```{r}
+# proc sort data=B.rawdata_old; by Patient_ID; run;
+# proc sort data=B.recent; by Patient_ID; run;
+
+
+# the SAS code default order is ascending so we use ascending order here too
+rawdata_old <- rawdata_old %>% arrange(patient_id)
+recent <- recent %>% arrange(patient_id)
+```
+
+```{r}
+# data B.rawdata0;
+# merge B.rawdata_old(in=a) B.recent;
+# by Patient_ID;
+# if a;
+# run;
+
+# left join
+rawdata0 <- merge(rawdata_old, recent, by = 'patient_id', all.x = TRUE)
+```
+
+```{r}
+head(rawdata0)
+```
+
+```{r}
+# data rawdata1;
+# set B.rawdata0;
+# if ETHNICITY="Not Hispanic" and RACE="Caucasian" then race_gp="Non-hispanic white";
+# else if ETHNICITY="Not Hispanic" and RACE="African American" then race_gp="Non-hispanic black";
+# else if ETHNICITY="Hispanic" then race_gp="Hispanic";
+# else race_gp="Others/Unknown";
+
+# nested if-else to create the new variable base on ethnicity and race
+rawdata1 <- rawdata0 %>%
+  mutate(race_gp = ifelse(ethnicity == 'Not Hispanic' && race == "Caucasian", 'Non-hispanic white', 
+                          ifelse(ethnicity == 'Not Hispanic' && race == "African American", 'Non-hispanic black',
+                                 ifelse(ethnicity == 'Hispanic', 'Non-hispanic black', 'Others/Unknown')
+                                 )
+                          )
+         ) 
+```
+
+```{r}
+# if smoke in ("Current smoker") then smoke_status="a:current";
+# else if smoke in ("Previously smoked") then smoke_status="b:former";
+# else if smoke in ("N","Never smoked") then smoke_status="c:never";
+# else if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") then smoke_status="d:Other/unknown";
+
+
+# 
+# level_key <- c('Current smoker'='a:current', 'Previously smoked'='b:former', 'Never smoked'='c:never', 
+#                'Not currently smoking'= 'd:Other/unknown',
+#                'Other smoking status' = 'd:Other/unknown', 
+#                'Unknown smoking status'='d:Other/unknown')
+# rawdata1 <- rawdata1 %>% mutate(smoke_status=recode_factor(smoke, !!!level_key, .missing ='d:Other/unknown'))
+rawdata1 <- rawdata1 %>% mutate(smoke_status = ifelse(smoke == 'Current smoker', 'a:current',
+                                                      ifelse(smoke == 'Previously smoked', 'b:former',
+                                                             ifelse(smoke == 'Never smoked', 'c:never',
+                                                                    ifelse(smoke %in% c('Not currently smoking', 'Other smoking status', 'Unknown smoking status', NA), 'd:Other/unknown', NA)))))
+```
+
+```{r}
+# *try to fill in some missing by ICD smoke;
+# if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="current" then smoke_status="a:current";
+# if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="former" then smoke_status="b:former";
+
+rawdata1 <- rawdata1 %>%
+  mutate(smoke_status = ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") && smoke_by_icd == 1 && smoke_by_icd_group == 'current', "a:current",
+                               ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") && smoke_by_icd == 1 && smoke_by_icd_group == 'former', 'b:former', smoke_status)
+                               )
+         ) 
+```
+
+
+```{r}
+#!!!!! bug ?
+# if smoke_status in ("a:current","b:former") then smoke_yn=1;
+# else if smoke_status not in ("d:Other/unknown") then smoke_yn=0;
+
+rawdata1 <- rawdata1 %>% mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0))
+```
+
+
+
+```{r}
+# death=DECEASED_INDICATOR; 
+# inpatient=Inpatient_visit;
+
+
+rawdata1 <- rawdata1 %>% mutate(death = deceased_indicator, 
+                                inpatient = inpatient_visit)
+```
+
+
+```{r}
+# if death=1 or inpatient=1 or ICU=1 or Ventilation=1 then severity=1;
+# else if death~=. and inpatient~=. and ICU~=. and
+# Ventilation~=. then severity=0;
+
+rawdata1 <- rawdata1 %>% mutate(severity = ifelse((death == 1 || inpatient == 1 || icu == 1 || ventilation == 1), 1,
+                                                  if_else((is.na(death)) && !is.na(inpatient) && !is.na(icu) && !is.na(ventilation), 0, NULL)
+                                                  )
+                                )
+```
+
+
+```{r}
+# event_count=death+inpatient+ICU+Ventilation;
+# COVID_year=year(COVID_diag_date);
+# age=(covid_year-birth_yr);
+
+rawdata1 <- rawdata1 %>% mutate(event_count = death + inpatient + icu + ventilation,
+                                covid_year = as.numeric(format(`covid diag date`, "%Y")), 
+                                age = (covid_year - birth_yr))
+```
+
+
+```{r}
+# if age>=0 and age<18 then age_gp="0-18  ";
+# else if age>=18 and age<50 then age_gp="18-50";
+# else if age>=50 and age<65 then age_gp="50-65";
+# else if age>=65 and age<75 then age_gp="65-75";
+# else if age>=75 then age_gp=">=75";
+# 
+# run;
+
+rawdata1 <- rawdata1 %>% 
+  mutate(age_gp = ifelse(age >= 0 && age < 18, '0-18',
+         ifelse(age >= 18 && age < 50, '18-50', 
+         ifelse(age >= 50 && age < 65, '50-65',
+         ifelse(age >= 65 && age < 75, '65-75',
+         ifelse(age >= 75), '>= 75', NA)))))
+
+```
+

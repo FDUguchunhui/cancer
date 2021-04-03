@@ -1,0 +1,297 @@
+"","Patient_ID","GENDER","REGION","Cancer","Surgery_4w","race_gp","age","N_comorbity","N_Posi_Comorb","distance","weights"
+"3581","PT330319296","Male","South",1,0,"Non-hispanic black",17,2,3,0.00648094738704323,1
+"9019","PT374104195","Male","South",1,0,"Hispanic",11,1,5,0.148918887025076,1
+"9164","PT560724505","Female","South",1,1,"Hispanic",14,0,2,0.030053158142415,1
+"11299","PT309837303","Female","Northeast",0,0,"Non-hispanic white",16,0,1,0.00440777554172922,1
+"13156","PT282485732","Female","Midwest",1,0,"Non-hispanic white",4,1,1,0.00382843505530364,1
+"20812","PT549773161","Female","Midwest",1,0,"Non-hispanic white",9,1,2,0.00935408408295445,1
+"21004","PT545916066","Female","Midwest",0,0,"Non-hispanic white",5,0,0,0.00199379623376122,1
+"21052","PT352441488","Male","Midwest",0,0,"Non-hispanic white",3,1,3,0.0333388195291899,1
+"23679","PT298813880","Male","Midwest",1,1,"Non-hispanic black",12,0,1,0.0081486189062149,1
+"24387","PT327094988","Female","West",0,1,"Non-hispanic white",16,2,3,0.147270624068188,1
+"24480","PT439225504","Male","South",1,1,"Hispanic",9,0,3,0.0968795442344788,1
+"26167","PT158023059","Male","Northeast",0,0,"Non-hispanic white",10,1,3,0.028641858612169,1
+"29747","PT376282700","Male","South",1,0,"Hispanic",11,1,2,0.00525737613045765,1
+"31266","PT293339337","Female","Northeast",1,0,"Non-hispanic white",11,0,0,0.00179870702144935,1
+"35888","PT567839526","Female","Midwest",0,0,"Hispanic",3,0,2,0.0169084865438993,1
+"40009","PT379112607","Male","Midwest",1,0,"Non-hispanic white",3,1,3,0.0333388195291899,1
+"42049","PT553100496","Male","South",0,0,"Non-hispanic white",17,0,0,0.000871906853831171,1
+"45069","PT548238074","Female","Midwest",1,0,"Non-hispanic white",10,0,1,0.00488446172339283,1
+"47432","PT553975204","Male","Midwest",0,0,"Non-hispanic white",2,0,0,0.00193158622083283,1
+"47506","PT360921077","Male","West",0,0,"Non-hispanic white",10,0,2,0.0555585587835811,1
+"47750","PT305902286","Male","Midwest",1,0,"Non-hispanic white",16,0,2,0.00934271227296094,1
+"49394","PT446098811","Female","Midwest",1,0,"Non-hispanic white",5,0,1,0.00637397940012448,1
+"50557","PT543926354","Male","Midwest",0,1,"Non-hispanic white",3,0,0,0.00588144083624301,1
+"50860","PT385610477","Female","Northeast",0,0,"Hispanic",16,1,1,0.00188258794314122,1
+"52522","PT328406686","Male","West",1,0,"Non-hispanic white",17,1,2,0.0224503446526474,1
+"53362","PT519098882","Female","Northeast",1,0,"Non-hispanic white",17,0,0,0.00130521389559065,1
+"57484","PT551603840","Female","Midwest",0,1,"Non-hispanic white",6,1,3,0.102992674469795,1
+"58229","PT447311318","Male","Northeast",0,0,"Non-hispanic white",5,1,1,0.00372362384364731,1
+"62105","PT467616821","Female","Northeast",1,0,"Non-hispanic black",5,0,1,0.00555454656171023,1
+"62934","PT572748486","Male","Midwest",0,0,"Non-hispanic white",0,1,2,0.0124548762665061,1
+"63060","PT367154004","Female","Northeast",0,0,"Hispanic",17,0,2,0.0100079715935912,1
+"63146","PT280786843","Female","Northeast",1,1,"Non-hispanic white",5,0,0,0.00794896119634224,1
+"66579","PT351789781","Female","Northeast",0,1,"Non-hispanic white",5,0,0,0.00794896119634224,1
+"68015","PT328418892","Female","West",0,0,"Non-hispanic white",12,0,0,0.00617515820653492,1
+"69485","PT564289122","Male","Northeast",1,0,"Non-hispanic black",15,2,2,0.00278591507451374,1
+"71599","PT416053907","Male","Northeast",0,1,"Hispanic",14,1,2,0.0176194196535272,1
+"74942","PT552175048","Female","Midwest",0,1,"Non-hispanic white",8,0,1,0.0173139616220657,1
+"76776","PT325095637","Male","West",0,0,"Non-hispanic white",13,0,1,0.0153626234778509,1
+"77577","PT456065281","Female","West",1,0,"Non-hispanic white",3,0,0,0.00995935830093768,1
+"79750","PT517017238","Female","Northeast",0,1,"Non-hispanic white",16,2,2,0.0145695412593186,1
+"81517","PT386754265","Male","Northeast",0,0,"Non-hispanic white",10,0,1,0.00501082556878058,1
+"82040","PT398801732","Female","Midwest",1,1,"Non-hispanic white",5,0,2,0.062292521580781,1
+"82555","PT412131285","Female","Midwest",0,0,"Non-hispanic white",4,1,1,0.00382843505530364,1
+"86061","PT356303224","Male","West",0,0,"Hispanic",15,1,1,0.00593664393547961,1
+"87061","PT573273948","Female","Midwest",1,1,"Non-hispanic white",8,0,1,0.0173139616220657,1
+"87695","PT529535971","Female","Midwest",0,0,"Non-hispanic white",0,1,2,0.0150568482873675,1
+"90908","PT307364777","Female","Midwest",1,0,"Non-hispanic white",15,0,0,0.00116829053632184,1
+"90996","PT546013796","Male","South",1,0,"Non-hispanic white",9,1,2,0.00777998894311383,1
+"91356","PT280971528","Female","Northeast",1,1,"Non-hispanic white",15,0,0,0.00466933199158911,1
+"92462","PT574361550","Female","Midwest",1,0,"Non-hispanic white",14,1,3,0.0226734794957621,1
+"92836","PT453513406","Male","Midwest",1,0,"Non-hispanic white",5,0,0,0.00164547723774769,1
+"96215","PT566361883","Male","Midwest",0,1,"Non-hispanic white",9,0,1,0.0135909363473948,1
+"96397","PT553483720","Female","Midwest",0,0,"Non-hispanic white",5,0,1,0.00637397940012448,1
+"98139","PT576122586","Male","South",1,0,"Non-hispanic white",6,0,1,0.00502388440339917,1
+"100124","PT549222639","Male","South",1,1,"Hispanic",11,0,0,0.00290272325307006,1
+"100695","PT576127538","Female","Midwest",0,0,"Non-hispanic white",0,1,2,0.0150568482873675,1
+"101858","PT431117910","Male","West",1,0,"Non-hispanic white",14,0,1,0.0145735179113613,1
+"104081","PT466803971","Female","Northeast",1,0,"Non-hispanic black",1,1,2,0.0124597339365387,1
+"109377","PT361734594","Male","West",1,0,"Hispanic",7,1,2,0.0285865926885104,1
+"109467","PT551126359","Male","West",1,0,"Non-hispanic white",17,0,0,0.00390708763792679,1
+"112117","PT550359564","Female","Midwest",0,0,"Non-hispanic white",9,1,2,0.00935408408295445,1
+"114363","PT274461567","Female","Midwest",0,0,"Non-hispanic white",16,0,1,0.00354736980620566,1
+"114549","PT426270672","Female","South",0,1,"Hispanic",2,1,1,0.0103095269881789,1
+"121449","PT328369218","Male","South",0,0,"Non-hispanic black",15,0,3,0.0220185949712898,1
+"121817","PT578311513","Male","South",0,1,"Hispanic",11,0,0,0.00290272325307006,1
+"122522","PT431038574","Male","South",1,1,"Non-hispanic white",3,1,2,0.0336915382196969,1
+"123693","PT329956036","Male","South",0,0,"Non-hispanic white",6,0,1,0.00502388440339917,1
+"125041","PT373551670","Male","South",1,1,"Non-hispanic white",15,1,3,0.0556168834327905,1
+"126040","PT313910531","Female","Northeast",0,0,"Non-hispanic white",8,0,1,0.006748209015268,1
+"129714","PT307169147","Male","Midwest",1,1,"Non-hispanic white",9,0,1,0.0135909363473948,1
+"131619","PT305566715","Male","Midwest",0,0,"Non-hispanic white",4,0,2,0.0176124262368044,1
+"135778","PT563092009","Male","West",1,0,"Non-hispanic black",16,0,0,0.00288893331334118,1
+"136178","PT303386178","Male","Midwest",1,1,"Hispanic",4,1,1,0.00761296040604135,1
+"137947","PT552128505","Female","Midwest",0,0,"Non-hispanic black",16,1,2,0.00452441996544924,1
+"140831","PT116885748","Female","Midwest",0,1,"Non-hispanic white",14,0,2,0.0394152360703153,1
+"141243","PT419057142","Male","Northeast",0,0,"Non-hispanic black",13,1,3,0.0172781603547739,1
+"141652","PT402876448","Male","Midwest",0,0,"Hispanic",5,0,1,0.00395468119773156,1
+"141674","PT362471930","Male","Midwest",0,0,"Non-hispanic white",5,0,0,0.00164547723774769,1
+"142041","PT301903521","Male","Midwest",0,0,"Non-hispanic white",12,0,0,0.00113180856892333,1
+"144825","PT369034949","Female","West",1,0,"Hispanic",9,0,1,0.0172720363561124,1
+"146145","PT277917237","Female","Northeast",0,0,"Hispanic",8,1,2,0.00920846605507001,1
+"147974","PT552521327","Female","South",1,0,"Non-hispanic white",1,1,2,0.0143752117581647,1
+"152305","PT204972607","Male","Northeast",1,0,"Non-hispanic white",17,1,2,0.00627344713171663,1
+"153675","PT549056344","Female","Midwest",1,0,"Non-hispanic white",5,0,0,0.00199379623376122,1
+"154234","PT256342267","Male","Midwest",0,0,"Non-hispanic white",13,0,0,0.00107287642043941,1
+"157704","PT265646229","Female","Northeast",0,0,"Non-hispanic black",5,0,1,0.00555454656171023,1
+"157788","PT358918545","Female","West",0,1,"Hispanic",17,0,3,0.275801975322748,1
+"159183","PT323668882","Female","South",1,0,"Non-hispanic white",9,0,2,0.016460860777022,1
+"159442","PT544370050","Male","Midwest",1,0,"Hispanic",7,1,1,0.00202165128235183,1
+"159482","PT544629613","Male","West",1,0,"Hispanic",5,0,1,0.0176454862441026,1
+"159744","PT399559263","Female","Midwest",1,0,"Non-hispanic white",6,0,0,0.00189006617104427,1
+"159951","PT351617562","Male","Northeast",0,0,"Non-hispanic white",9,1,1,0.0030080291034439,1
+"161212","PT158047468","Female","Northeast",1,0,"Non-hispanic white",7,0,0,0.00222725291806275,1
+"161245","PT302941305","Male","Midwest",0,0,"Non-hispanic white",17,0,1,0.00277621499327344,1
+"162145","PT216678380","Female","South",0,0,"Non-hispanic white",16,0,1,0.00357046698475983,1
+"162229","PT525890352","Female","Midwest",1,0,"Non-hispanic white",2,0,0,0.00234032755303766,1
+"162961","PT437373672","Female","Midwest",1,0,"Non-hispanic white",2,1,1,0.00425923135266016,1
+"164702","PT434428538","Female","Northeast",1,0,"Non-hispanic black",10,0,2,0.0135376669248214,1
+"168329","PT376266926","Female","South",0,0,"Hispanic",11,1,2,0.00636539663268699,1
+"169002","PT118253639","Male","Midwest",1,0,"Non-hispanic white",9,0,0,0.0013287217738032,1
+"171769","PT320049481","Female","Midwest",0,0,"Hispanic",9,0,0,0.0012084033898468,1
+"171785","PT430126022","Male","Midwest",1,0,"Non-hispanic black",13,0,0,0.000751417342528567,1
+"172554","PT307602990","Male","Midwest",0,0,"Non-hispanic white",14,1,3,0.0187803755731921,1
+"173647","PT299295689","Male","Midwest",0,1,"Hispanic",4,1,1,0.00761296040604135,1
+"174073","PT548797491","Female","Midwest",0,0,"Non-hispanic white",1,1,1,0.00449240002566391,1
+"174347","PT300317609","Female","Midwest",0,0,"Non-hispanic white",17,0,3,0.03362235439598,1
+"174632","PT298292557","Male","Midwest",0,0,"Non-hispanic white",12,0,1,0.00362516446147451,1
+"176810","PT265592610","Male","Midwest",0,0,"Non-hispanic white",17,0,1,0.00277621499327344,1
+"177593","PT439070568","Female","Midwest",1,0,"Non-hispanic white",2,0,2,0.0236154096243247,1
+"184392","PT577902545","Male","West",0,0,"Non-hispanic black",16,0,0,0.00288893331334118,1
+"184641","PT116851374","Female","Midwest",1,0,"Non-hispanic white",16,0,2,0.0113019570090042,1
+"190552","PT508193913","Female","Northeast",1,0,"Hispanic",2,2,0,0.000705281023561356,1
+"193156","PT508072166","Female","West",0,0,"Hispanic",1,2,3,0.0822971736177147,1
+"200640","PT352064989","Female","Northeast",0,0,"Non-hispanic white",7,0,0,0.00222725291806275,1
+"204052","PT510847452","Female","West",1,0,"Non-hispanic white",6,0,2,0.0811616877884552,1
+"209176","PT396625996","Female","Northeast",0,0,"Non-hispanic white",4,0,0,0.002614253837817,1
+"209356","PT575657576","Female","Northeast",1,0,"Hispanic",14,0,0,0.00114995545921486,1
+"210228","PT341093170","Male","Northeast",1,0,"Non-hispanic white",8,0,0,0.00174257351283809,1
+"210305","PT264906837","Male","Northeast",0,1,"Hispanic",13,0,3,0.0966509137561875,1
+"210669","PT303544308","Female","Midwest",1,0,"Non-hispanic black",16,1,2,0.00452441996544924,1
+"213700","PT303938923","Male","Midwest",0,0,"Non-hispanic white",16,0,0,0.000913844154494826,1
+"214009","PT354239118","Female","South",0,0,"Non-hispanic white",10,1,2,0.00892827637436382,1
+"216110","PT565242055","Female","Midwest",1,0,"Hispanic",9,0,0,0.0012084033898468,1
+"217236","PT359294030","Male","West",0,0,"Hispanic",5,0,1,0.0176454862441026,1
+"217295","PT374561865","Female","South",0,1,"Hispanic",17,0,1,0.00815081353200352,1
+"219147","PT435662627","Female","South",1,0,"Hispanic",11,1,2,0.00636539663268699,1
+"220507","PT376958907","Male","South",1,1,"Hispanic",5,0,1,0.0127244797644924,1
+"220609","PT315194112","Male","Northeast",0,0,"Non-hispanic white",12,0,0,0.00140715329587397,1
+"221312","PT327056015","Female","South",0,0,"Non-hispanic white",9,0,2,0.016460860777022,1
+"221645","PT577849858","Male","South",1,0,"Non-hispanic black",15,0,3,0.0220185949712898,1
+"222206","PT275025739","Female","Midwest",0,0,"Non-hispanic white",16,0,2,0.0113019570090042,1
+"223620","PT517019602","Female","South",0,0,"Non-hispanic white",1,1,2,0.0143752117581647,1
+"223988","PT516132286","Male","Midwest",0,0,"Non-hispanic white",1,1,1,0.00370919377906001,1
+"228750","PT326616187","Female","South",1,0,"Non-hispanic white",5,0,2,0.0203116147707801,1
+"236785","PT546536220","Female","Midwest",1,0,"Non-hispanic white",14,1,1,0.00224502949140206,1
+"237153","PT204493773","Male","Northeast",1,0,"Non-hispanic white",16,1,1,0.00206989446224677,1
+"237571","PT466888855","Male","Midwest",0,0,"Hispanic",1,1,1,0.00278526939568644,1
+"238363","PT552763194","Female","Midwest",0,0,"Non-hispanic black",16,0,0,0.000775647552415179,1
+"239754","PT324202644","Female","West",0,0,"Non-hispanic white",11,0,2,0.0633087776637378,1
+"240171","PT353374275","Female","Northeast",0,0,"Non-hispanic white",7,0,0,0.00222725291806275,1
+"241563","PT517477732","Female","West",1,0,"Non-hispanic white",1,1,2,0.0615220885708074,1
+"245909","PT319877200","Male","Midwest",0,0,"Non-hispanic white",4,0,1,0.00555236587727299,1
+"248852","PT505206806","Male","Midwest",1,0,"Non-hispanic white",1,1,1,0.00370919377906001,1
+"250343","PT463561263","Male","Midwest",1,1,"Non-hispanic white",3,0,0,0.00588144083624301,1
+"251698","PT403055331","Male","Midwest",1,1,"Hispanic",5,0,2,0.0394924428868246,1
+"252305","PT386664530","Male","Northeast",1,0,"Non-hispanic white",5,1,1,0.00372362384364731,1
+"253996","PT306026930","Female","Midwest",1,0,"Non-hispanic white",16,0,1,0.00354736980620566,1
+"255737","PT307600030","Male","Midwest",1,0,"Non-hispanic white",14,0,1,0.00325829046029588,1
+"257513","PT552591623","Male","Midwest",1,0,"Non-hispanic white",4,0,1,0.00555236587727299,1
+"260609","PT413574967","Female","Midwest",1,0,"Hispanic",3,0,2,0.0169084865438993,1
+"262356","PT401822712","Male","Midwest",1,1,"Non-hispanic white",17,2,2,0.00921135266392782,1
+"263491","PT547227751","Male","Midwest",0,0,"Non-hispanic white",9,0,0,0.0013287217738032,1
+"266797","PT553809770","Male","South",1,0,"Non-hispanic white",5,1,1,0.00301588422218356,1
+"267089","PT390692452","Male","Midwest",1,0,"Non-hispanic white",14,1,3,0.0187803755731921,1
+"269392","PT172439929","Female","South",1,0,"Non-hispanic white",10,1,2,0.00892827637436382,1
+"270635","PT367958971","Female","West",0,0,"Hispanic",6,0,2,0.062148570139409,1
+"271406","PT547110170","Male","West",0,0,"Hispanic",6,1,2,0.0301112726620543,1
+"272004","PT306893937","Female","Midwest",1,0,"Non-hispanic white",6,0,0,0.00189006617104427,1
+"273408","PT361923460","Female","West",0,0,"Hispanic",6,0,0,0.00638608102913741,1
+"274841","PT298459513","Female","Midwest",0,0,"Non-hispanic white",14,1,1,0.00224502949140206,1
+"276717","PT547688212","Female","Midwest",1,0,"Non-hispanic white",16,0,1,0.00354736980620566,1
+"277220","PT385779029","Female","Northeast",1,0,"Non-hispanic black",4,0,0,0.00183180863268717,1
+"279744","PT547732605","Female","Midwest",0,0,"Non-hispanic white",2,0,0,0.00234032755303766,1
+"283302","PT361968605","Male","West",0,0,"Non-hispanic white",6,1,1,0.0127239082488945,1
+"289007","PT545483725","Female","Midwest",0,0,"Non-hispanic white",1,1,1,0.00449240002566391,1
+"291599","PT354743668","Male","West",0,0,"Hispanic",11,0,2,0.0401526602787021,1
+"293488","PT406083991","Female","Midwest",1,1,"Non-hispanic white",10,0,2,0.0483717035375195,1
+"293683","PT543004816","Female","Midwest",1,0,"Non-hispanic white",9,1,0,0.000914965947580152,1
+"295244","PT449769408","Male","West",1,0,"Hispanic",11,0,2,0.0401526602787021,1
+"295392","PT551049462","Male","Midwest",1,0,"Hispanic",5,0,1,0.00395468119773156,1
+"295709","PT551134611","Male","Midwest",1,0,"Non-hispanic white",17,0,1,0.00277621499327344,1
+"298249","PT300405027","Female","Midwest",1,0,"Non-hispanic white",9,0,2,0.016355745012395,1
+"298288","PT329173086","Male","West",0,0,"Non-hispanic white",8,0,2,0.0614512299325393,1
+"298355","PT434638993","Female","West",0,0,"Non-hispanic white",3,0,0,0.00995935830093768,1
+"300305","PT439781040","Female","Midwest",0,0,"Non-hispanic white",17,0,3,0.03362235439598,1
+"301215","PT411762444","Female","Northeast",0,0,"Non-hispanic black",17,0,0,0.000914204740364208,1
+"301566","PT571512612","Male","Midwest",1,0,"Non-hispanic white",9,0,0,0.0013287217738032,1
+"303560","PT552849677","Male","Midwest",1,0,"Non-hispanic white",14,1,2,0.00592538891115176,1
+"303921","PT577841106","Male","West",0,0,"Non-hispanic white",17,0,0,0.00390708763792679,1
+"304443","PT298857158","Male","Midwest",0,0,"Non-hispanic white",9,0,2,0.0135323947603963,1
+"306074","PT549119557","Female","Midwest",0,1,"Non-hispanic black",13,1,2,0.0169203126277846,1
+"308459","PT301174505","Female","Midwest",0,0,"Non-hispanic white",12,1,2,0.00797733286158539,1
+"309711","PT201694462","Male","Northeast",1,1,"Hispanic",12,0,3,0.101426798277399,1
+"310716","PT259519024","Female","Northeast",1,1,"Non-hispanic white",15,2,2,0.015358434859776,1
+"314062","PT462115257","Female","West",1,0,"Hispanic",14,0,2,0.0413947903080234,1
+"314597","PT386008295","Male","Northeast",0,0,"Non-hispanic white",12,1,2,0.00818305309370937,1
+"320004","PT200331439","Male","Midwest",0,0,"Non-hispanic black",13,0,0,0.000751417342528567,1
+"320593","PT528945135","Male","Northeast",1,0,"Non-hispanic white",6,0,0,0.00193911422852724,1
+"320750","PT530033959","Female","Midwest",1,0,"Non-hispanic white",0,1,2,0.0150568482873675,1
+"323500","PT435340379","Female","Northeast",0,0,"Non-hispanic white",17,0,0,0.00130521389559065,1
+"324242","PT165428495","Male","South",0,0,"Hispanic",11,1,2,0.00525737613045765,1
+"330533","PT363283201","Female","West",1,0,"Non-hispanic white",12,0,0,0.00617515820653492,1
+"331442","PT298532162","Female","Midwest",0,1,"Non-hispanic white",16,1,1,0.00647766745258837,1
+"332746","PT302284789","Female","Midwest",1,0,"Non-hispanic white",17,0,3,0.03362235439598,1
+"335571","PT299247990","Male","Midwest",0,0,"Non-hispanic white",14,0,1,0.00325829046029588,1
+"335970","PT561650158","Female","Northeast",1,0,"Hispanic",16,1,1,0.00188258794314122,1
+"338397","PT462148385","Female","West",1,0,"Hispanic",6,0,0,0.00638608102913741,1
+"338415","PT549879881","Female","South",0,0,"Non-hispanic white",15,0,1,0.00376607233973629,1
+"338468","PT392311850","Female","Midwest",1,0,"Non-hispanic white",5,2,4,0.0640973359393406,1
+"338578","PT571639223","Male","Midwest",1,0,"Non-hispanic white",12,0,1,0.00362516446147451,1
+"339175","PT570131521","Male","Midwest",1,1,"Non-hispanic white",3,0,3,0.163788117972755,1
+"340649","PT205077459","Male","Northeast",1,0,"Non-hispanic white",10,0,1,0.00501082556878058,1
+"341356","PT384353085","Female","Northeast",1,0,"Hispanic",5,0,1,0.00594934977048227,1
+"341378","PT546296828","Female","South",0,0,"Non-hispanic white",5,0,2,0.0203116147707801,1
+"341586","PT299772115","Male","Midwest",0,0,"Non-hispanic white",13,0,2,0.0109525030154518,1
+"342104","PT513343811","Female","West",1,0,"Non-hispanic white",14,1,2,0.0316521148575129,1
+"343844","PT318227101","Male","Midwest",0,0,"Non-hispanic white",4,1,3,0.03165604723078,1
+"344572","PT570811518","Male","Midwest",1,0,"Non-hispanic white",4,0,2,0.0176124262368044,1
+"355578","PT553424940","Male","Midwest",1,0,"Non-hispanic white",2,0,0,0.00193158622083283,1
+"356479","PT264916536","Female","Midwest",0,0,"Non-hispanic white",15,0,0,0.00116829053632184,1
+"356708","PT306520288","Female","Midwest",0,1,"Non-hispanic white",8,0,1,0.0173139616220657,1
+"357506","PT305445544","Male","Midwest",0,0,"Non-hispanic white",14,1,2,0.00592538891115176,1
+"358168","PT157965302","Male","Northeast",0,0,"Non-hispanic white",15,0,2,0.0122221020691515,1
+"358350","PT429038970","Female","Northeast",0,0,"Hispanic",2,2,0,0.000705281023561356,1
+"358849","PT209361594","Male","Northeast",0,0,"Hispanic",5,0,0,0.00153537004517982,1
+"359206","PT116861429","Female","Midwest",0,0,"Non-hispanic white",10,0,1,0.00488446172339283,1
+"359471","PT158013525","Female","Northeast",0,0,"Non-hispanic white",11,0,0,0.00179870702144935,1
+"360025","PT266739748","Male","South",0,0,"Non-hispanic white",5,1,1,0.00301588422218356,1
+"360993","PT157962432","Female","Northeast",0,0,"Non-hispanic white",14,0,3,0.0483496699700515,1
+"362959","PT458035900","Female","Midwest",0,0,"Non-hispanic white",2,0,2,0.0236154096243247,1
+"364153","PT152767419","Male","Northeast",0,0,"Non-hispanic white",8,0,0,0.00174257351283809,1
+"367820","PT574460744","Female","Midwest",0,0,"Non-hispanic white",2,1,1,0.00425923135266016,1
+"368403","PT301894039","Male","Midwest",1,0,"Non-hispanic white",13,0,0,0.00107287642043941,1
+"369859","PT201385781","Male","Northeast",1,0,"Non-hispanic white",12,0,0,0.00140715329587397,1
+"370612","PT157995028","Male","Northeast",0,0,"Non-hispanic black",12,0,3,0.0316305206315838,1
+"371235","PT433561966","Female","Northeast",0,1,"Non-hispanic white",15,0,0,0.00466933199158911,1
+"372406","PT545881804","Male","Midwest",0,0,"Non-hispanic white",16,0,2,0.00934271227296094,1
+"374406","PT431086592","Male","Northeast",0,0,"Non-hispanic white",16,1,1,0.00206989446224677,1
+"378523","PT198572351","Male","Northeast",1,0,"Non-hispanic white",9,1,1,0.0030080291034439,1
+"380793","PT463085894","Male","Midwest",1,0,"Non-hispanic white",1,1,1,0.00370919377906001,1
+"382070","PT204889656","Male","Northeast",1,0,"Non-hispanic white",6,0,1,0.00619991245351048,1
+"382160","PT511068449","Male","Midwest",0,0,"Non-hispanic white",1,1,1,0.00370919377906001,1
+"382419","PT513739547","Female","Midwest",1,0,"Non-hispanic white",1,1,1,0.00449240002566391,1
+"383054","PT118202402","Male","Midwest",1,0,"Non-hispanic white",17,0,1,0.00277621499327344,1
+"384469","PT377262894","Male","South",0,0,"Hispanic",16,3,5,0.0413883510207889,1
+"385108","PT300547291","Female","Midwest",1,0,"Hispanic",13,2,3,0.0103194861813122,1
+"389135","PT564031877","Female","Northeast",1,0,"Hispanic",17,0,2,0.0100079715935912,1
+"391992","PT263044565","Male","Northeast",1,0,"Non-hispanic white",12,1,2,0.00818305309370937,1
+"394018","PT354812611","Female","South",0,0,"Hispanic",12,1,2,0.00603560336206347,1
+"395493","PT306891263","Female","Midwest",0,0,"Non-hispanic white",14,1,3,0.0226734794957621,1
+"402253","PT432012076","Male","Northeast",1,1,"Non-hispanic white",5,1,4,0.285238569629402,1
+"402647","PT301949740","Female","Midwest",0,0,"Non-hispanic white",6,0,0,0.00189006617104427,1
+"403461","PT437480989","Female","Northeast",1,0,"Non-hispanic white",17,0,1,0.00417898068843862,1
+"406136","PT387029732","Female","Northeast",1,0,"Non-hispanic white",16,0,1,0.00440777554172922,1
+"406228","PT306510730","Male","Midwest",0,0,"Non-hispanic white",9,0,3,0.0421901713091181,1
+"406314","PT152532496","Female","Northeast",0,0,"Non-hispanic white",17,0,1,0.00417898068843862,1
+"407559","PT299723249","Female","Midwest",1,0,"Non-hispanic white",11,1,1,0.00263511105876989,1
+"407945","PT463173422","Female","Midwest",0,0,"Non-hispanic white",15,0,0,0.00116829053632184,1
+"408020","PT545704899","Male","South",1,0,"Non-hispanic white",17,0,0,0.000871906853831171,1
+"408075","PT547273507","Male","South",0,0,"Non-hispanic white",6,0,1,0.00502388440339917,1
+"408798","PT306792794","Female","Midwest",1,0,"Non-hispanic white",15,0,0,0.00116829053632184,1
+"411033","PT152771290","Male","Northeast",0,0,"Non-hispanic white",6,0,0,0.00193911422852724,1
+"412860","PT433553996","Male","Northeast",0,0,"Non-hispanic white",17,1,2,0.00627344713171663,1
+"413125","PT408113364","Male","West",0,0,"Non-hispanic white",13,1,1,0.00878230789491255,1
+"413990","PT434281674","Male","Northeast",1,0,"Non-hispanic white",15,0,2,0.0122221020691515,1
+"414936","PT439034310","Female","Northeast",0,0,"Hispanic",5,0,1,0.00594934977048227,1
+"416898","PT552275406","Female","South",1,0,"Non-hispanic white",16,0,1,0.00357046698475983,1
+"418181","PT284828614","Male","Midwest",1,0,"Non-hispanic white",5,1,3,0.0300555717356408,1
+"418302","PT553040453","Female","Midwest",0,0,"Non-hispanic white",16,0,1,0.00354736980620566,1
+"418468","PT376896479","Female","South",1,0,"Hispanic",12,1,2,0.00603560336206347,1
+"419265","PT557873438","Female","South",1,0,"Non-hispanic white",15,0,1,0.00376607233973629,1
+"419292","PT560248344","Female","Midwest",1,0,"Non-hispanic white",0,1,2,0.0150568482873675,1
+"419416","PT529972034","Female","Midwest",1,1,"Non-hispanic black",1,0,1,0.0176275482993876,1
+"419877","PT449669335","Female","Northeast",1,0,"Non-hispanic white",4,0,0,0.002614253837817,1
+"421067","PT304881581","Male","Midwest",1,0,"Non-hispanic white",16,0,0,0.000913844154494826,1
+"425092","PT413999044","Female","Northeast",0,0,"Non-hispanic white",10,0,4,0.168117803615499,1
+"428247","PT215077133","Female","Midwest",0,0,"Non-hispanic white",11,1,1,0.00263511105876989,1
+"433481","PT505079745","Female","Midwest",1,0,"Non-hispanic white",1,1,1,0.00449240002566391,1
+"434166","PT300769430","Female","Midwest",1,0,"Non-hispanic white",7,2,2,0.00593262611570311,1
+"434745","PT302696177","Female","Midwest",0,0,"Non-hispanic white",9,0,2,0.016355745012395,1
+"438262","PT419056106","Female","Northeast",0,0,"Non-hispanic black",4,0,0,0.00183180863268717,1
+"438602","PT565730838","Male","Northeast",0,0,"Hispanic",3,0,1,0.00546560389356859,1
+"441432","PT431460953","Female","Northeast",1,0,"Non-hispanic white",7,0,0,0.00222725291806275,1
+"442699","PT152730029","Female","Northeast",1,0,"Non-hispanic white",8,0,1,0.006748209015268,1
+"444141","PT306185390","Male","Midwest",1,0,"Non-hispanic white",13,0,2,0.0109525030154518,1
+"444417","PT376890093","Male","South",1,0,"Hispanic",15,1,4,0.0421354060191887,1
+"445209","PT325688867","Male","West",0,0,"Non-hispanic white",17,1,2,0.0224503446526474,1
+"445318","PT119862660","Male","Midwest",1,0,"Non-hispanic white",12,0,0,0.00113180856892333,1
+"445653","PT326855931","Male","West",1,0,"Non-hispanic white",8,1,1,0.0114468016037183,1
+"446732","PT561945946","Male","Northeast",1,0,"Hispanic",5,0,0,0.00153537004517982,1
+"447183","PT544752489","Male","Midwest",0,0,"Non-hispanic white",9,0,0,0.0013287217738032,1
+"447750","PT516437539","Female","Northeast",0,0,"Hispanic",14,0,0,0.00114995545921486,1
+"448459","PT369370818","Female","West",1,0,"Non-hispanic white",14,1,2,0.0316521148575129,1
+"450038","PT324402254","Male","West",0,0,"Non-hispanic white",8,1,1,0.0114468016037183,1
+"450818","PT158023979","Female","Northeast",1,1,"Hispanic",9,1,1,0.00877062941367621,1
+"451534","PT224923859","Male","Northeast",0,0,"Non-hispanic white",6,0,1,0.00619991245351048,1
+"451549","PT544229831","Male","Midwest",0,0,"Hispanic",7,1,1,0.00202165128235183,1
+"452158","PT561489227","Male","West",1,0,"Hispanic",17,1,2,0.0169375432918959,1
+"454205","PT148844896","Male","South",0,0,"Non-hispanic white",9,1,2,0.00777998894311383,1
+"456350","PT284502501","Male","South",1,0,"Non-hispanic white",6,0,1,0.00502388440339917,1
+"456633","PT574208045","Male","Northeast",1,0,"Hispanic",3,0,1,0.00546560389356859,1
+"457396","PT432005736","Female","Midwest",1,0,"Non-hispanic white",12,1,2,0.00797733286158539,1
+"459634","PT577679053","Female","Midwest",1,1,"Non-hispanic white",8,0,1,0.0173139616220657,1
+"462770","PT304462380","Female","Midwest",1,0,"Non-hispanic black",16,0,0,0.000775647552415179,1
+"464633","PT552432727","Female","Midwest",0,0,"Non-hispanic white",6,0,0,0.00189006617104427,1
+"468997","PT296010865","Female","South",0,1,"Hispanic",14,0,2,0.030053158142415,1
