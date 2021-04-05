@@ -13,7 +13,9 @@ load('data/rawdata1.Rdata')
 
 
 ```{r}
-rawdata2 <- rawdata1 %>% mutate(sex = ifelse(gender == 'Male', 1, 
+rawdata2 <- rawdata1 %>%
+  rowwise() %>% 
+  mutate(sex = ifelse(gender == 'Male', 1, 
                                       ifelse(gender == 'Female', 2, NA)),
                                 age_in_month = age * 12)
 ```
@@ -566,6 +568,7 @@ rawdata2 <- rawdata2 %>%
 
 # create binary outcome variable of overweight
 rawdata2 <- rawdata2 %>% 
+  rowwise() %>% 
   mutate(obesity01 = ifelse(is.na(obese_overweight), NA, 
                            ifelse(obese_overweight == 'd:obese', 1, 0)),
          overweight = ifelse(is.na(obese_overweight), NA,
@@ -596,25 +599,27 @@ save(rawdata2, file = 'data/rawdata2.RData')
 
 Comparison with the SAS result
 ```{r}
-library(haven)
-dat <- read_sas('data/dat.sas7bdat')
+# library(haven)
+# dat <- read_sas('data/dat.sas7bdat')
 ```
 
 ```{r}
-dat <- dat %>% mutate(obese_overweight = ifelse(obese_overweight == '', NA, obese_overweight))
+# dat <- dat %>% 
+#   rowwise() %>% 
+#   mutate(obese_overweight = ifelse(obese_overweight == '', NA, obese_overweight))
 ```
 
 ```{r}
-dat[9451, c('BMI', 'sex', 'age_in_month', 'obese_overweight', 'P5', 'P85', 'P90', 'P95', 'P97')]
+# dat[9451, c('BMI', 'sex', 'age_in_month', 'obese_overweight', 'P5', 'P85', 'P90', 'P95', 'P97')]
 ```
 ```{r}
-rawdata2[9451, c('bmi', 'sex', 'age_in_month')]
+# rawdata2[9451, c('bmi', 'sex', 'age_in_month')]
 ```
 
 
 SAS
 Missing values are treated as numbers equal to minus infinity.  So, any number is greater than a missing value.
 ```{r}
-which((is.na(dat$obese_overweight) == is.na(rawdata2$obese_overweight)) == FALSE)
+# which((is.na(dat$obese_overweight) == is.na(rawdata2$obese_overweight)) == FALSE)
 ```
 

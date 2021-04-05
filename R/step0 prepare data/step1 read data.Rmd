@@ -49,6 +49,13 @@ head(rawdata_old)
 ```
 
 ```{r}
+
+
+```
+
+
+
+```{r}
 # delete unused columns
 rawdata_old <- rawdata_old %>% 
   select(-tolower(c('MA_Cytotoxic_4w', 'MA_Non_Cytotoxic_4w', 'PR_Cytotoxic_4w', 'PR_Non_Cytotoxic_4w', 'PS_Cytotoxic_4w', 'PS_Non_Cytotoxic_4w', 'Radiation_4w', 'Surgery_4w')))
@@ -97,8 +104,25 @@ rawdata0 <- merge(rawdata_old, recent, by = 'patient_id', all.x = TRUE)
 ```
 
 ```{r}
+rawdata0 <- rawdata0 %>% 
+  mutate(
+          `covid diag date` = as.Date(`covid diag date`),
+          date_of_death = as.Date(date_of_death),
+          cancer_date = as.Date(cancer_date)
+          
+         )
+```
+
+
+
+```{r}
 head(rawdata0)
 ```
+
+```{r}
+save(rawdata0, file = 'data/rawdata0.RData')
+```
+
 
 ```{r}
 # data rawdata1;
@@ -110,9 +134,10 @@ head(rawdata0)
 
 # nested if-else to create the new variable base on ethnicity and race
 rawdata1 <- rawdata0 %>%
+  rowwise() %>% 
   mutate(race_gp = ifelse(ethnicity == 'Not Hispanic' && race == "Caucasian", 'Non-hispanic white', 
                           ifelse(ethnicity == 'Not Hispanic' && race == "African American", 'Non-hispanic black',
-                                 ifelse(ethnicity == 'Hispanic', 'Non-hispanic black', 'Others/Unknown')
+                                 ifelse(ethnicity == 'Hispanic', 'Hispanic', 'Others/Unknown')
                                  )
                           )
          ) 
@@ -131,10 +156,14 @@ rawdata1 <- rawdata0 %>%
 #                'Other smoking status' = 'd:Other/unknown', 
 #                'Unknown smoking status'='d:Other/unknown')
 # rawdata1 <- rawdata1 %>% mutate(smoke_status=recode_factor(smoke, !!!level_key, .missing ='d:Other/unknown'))
-rawdata1 <- rawdata1 %>% mutate(smoke_status = ifelse(smoke == 'Current smoker', 'a:current',
-                                                      ifelse(smoke == 'Previously smoked', 'b:former',
-                                                             ifelse(smoke == 'Never smoked', 'c:never',
-                                                                    ifelse(smoke %in% c('Not currently smoking', 'Other smoking status', 'Unknown smoking status', NA), 'd:Other/unknown', NA)))))
+rawdata1 <- rawdata1 %>%
+  rowwise() %>% 
+  mutate(smoke_status = ifelse(is.na(smoke), 'd:Other/unknown', 
+                                                      ifelse(smoke == 'Current smoker', 'a:current',
+                                                        ifelse(smoke == 'Previously smoked', 'b:former',
+                                                             ifelse(smoke %in% c('N', 'Never smoked'), 'c:never',
+                                                                    ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status"), 'd:Other/unknown', NA)))))
+                                )
 ```
 
 ```{r}
@@ -143,8 +172,9 @@ rawdata1 <- rawdata1 %>% mutate(smoke_status = ifelse(smoke == 'Current smoker',
 # if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="former" then smoke_status="b:former";
 
 rawdata1 <- rawdata1 %>%
-  mutate(smoke_status = ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") && smoke_by_icd == 1 && smoke_by_icd_group == 'current', "a:current",
-                               ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") && smoke_by_icd == 1 && smoke_by_icd_group == 'former', 'b:former', smoke_status)
+  rowwise() %>% 
+  mutate(smoke_status = ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status", NA) && smoke_by_icd == 1 && smoke_by_icd_group == 'current', "a:current",
+                               ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status", NA) && smoke_by_icd == 1 && smoke_by_icd_group == 'former', 'b:former', smoke_status)
                                )
          ) 
 ```
@@ -155,7 +185,9 @@ rawdata1 <- rawdata1 %>%
 # if smoke_status in ("a:current","b:former") then smoke_yn=1;
 # else if smoke_status not in ("d:Other/unknown") then smoke_yn=0;
 
-rawdata1 <- rawdata1 %>% mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0))
+rawdata1 <- rawdata1 %>% 
+  rowwise() %>% 
+  mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0))
 ```
 
 
@@ -165,7 +197,9 @@ rawdata1 <- rawdata1 %>% mutate(smoke_yn = ifelse(smoke_status %in% c("a:current
 # inpatient=Inpatient_visit;
 
 
-rawdata1 <- rawdata1 %>% mutate(death = deceased_indicator, 
+rawdata1 <- rawdata1 %>% 
+  rowwise() %>% 
+  mutate(death = deceased_indicator, 
                                 inpatient = inpatient_visit)
 ```
 
@@ -175,10 +209,10 @@ rawdata1 <- rawdata1 %>% mutate(death = deceased_indicator,
 # else if death~=. and inpatient~=. and ICU~=. and
 # Ventilation~=. then severity=0;
 
-rawdata1 <- rawdata1 %>% mutate(severity = ifelse((death == 1 || inpatient == 1 || icu == 1 || ventilation == 1), 1,
-                                                  if_else((is.na(death)) && !is.na(inpatient) && !is.na(icu) && !is.na(ventilation), 0, NULL)
-                                                  )
-                                )
+rawdata1 <- rawdata1 %>% 
+  rowwise() %>% 
+  mutate(severity = ifelse((death == 1 || inpatient == 1 || icu == 1 || ventilation == 1), 1, 0))
+                          
 ```
 
 
@@ -187,7 +221,9 @@ rawdata1 <- rawdata1 %>% mutate(severity = ifelse((death == 1 || inpatient == 1 
 # COVID_year=year(COVID_diag_date);
 # age=(covid_year-birth_yr);
 
-rawdata1 <- rawdata1 %>% mutate(event_count = death + inpatient + icu + ventilation,
+rawdata1 <- rawdata1 %>% 
+  rowwise() %>% 
+  mutate(event_count = death + inpatient + icu + ventilation,
                                 covid_year = as.numeric(format(`covid diag date`, "%Y")), 
                                 age = (covid_year - birth_yr))
 ```
@@ -203,11 +239,13 @@ rawdata1 <- rawdata1 %>% mutate(event_count = death + inpatient + icu + ventilat
 # run;
 
 rawdata1 <- rawdata1 %>% 
+  rowwise() %>% 
   mutate(age_gp = ifelse(age >= 0 && age < 18, '0-18',
          ifelse(age >= 18 && age < 50, '18-50', 
          ifelse(age >= 50 && age < 65, '50-65',
          ifelse(age >= 65 && age < 75, '65-75',
-         ifelse(age >= 75), '>= 75', NA)))))
+         ifelse(age >= 75, '>= 75', NA)))))
+  )
 
 ```
 
@@ -218,7 +256,7 @@ mean(rawdata1$birth_yr, na.rm = TRUE)
 
 check whether the processed data has the same fingerprints as SAS processed data
 ```{r}
-descr(rawdata1, round.digits = 4)
+descr(rawdata1, round.digits = 4, var = severity)
 ```
 
 ```{r}
