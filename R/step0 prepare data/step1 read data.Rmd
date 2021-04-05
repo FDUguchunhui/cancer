@@ -181,13 +181,13 @@ rawdata1 <- rawdata1 %>%
 
 
 ```{r}
-#!!!!! bug ?
 # if smoke_status in ("a:current","b:former") then smoke_yn=1;
 # else if smoke_status not in ("d:Other/unknown") then smoke_yn=0;
 
 rawdata1 <- rawdata1 %>% 
   rowwise() %>% 
-  mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0))
+  mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 
+                           ifelse(smoke_status != "d:Other/unknown", 0, NA)))
 ```
 
 
