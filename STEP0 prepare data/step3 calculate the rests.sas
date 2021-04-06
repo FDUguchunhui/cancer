@@ -30,23 +30,20 @@ else cytotoxic_4wk="N";
 if MA_Non_Cytotoxic_4w=1 or PS_Non_Cytotoxic_4w=1 or PR_Non_Cytotoxic_4w=1 then Nocytotoxic_4wk="Y";
 else Nocytotoxic_4wk="N";
 
-if cytotoxic_4wk="Y" then cytotoxic4wk="a. cytotoxic  ";
+/*if cytotoxic_4wk="Y" then cytotoxic4wk="a. cytotoxic";
 else if Nocytotoxic_4wk="Y" then cytotoxic4wk="b. no cytotoxic";
 else cytotoxic4wk="c. no chemo drug";
-
+*/
 *combine cytotoxic drug;
-if cytotoxic4wk in ("a. cytotoxic","b. no cytotoxi") then chemo_4w=1;
-else if cytotoxic4wk="c. no chemo dr" then chemo_4w=0;
+if cytotoxic_4wk="Y" or Nocytotoxic_4wk="Y"  then chemo_4w=1;
+else if cytotoxic_4wk="N" and Nocytotoxic_4wk="N" then chemo_4w=0;
 
- 
- run;
-
-
-proc freq data=rawdata3;
-tables N_comorbity_gp  N_Posi_Comorb_gp cytotoxic_4wk
-Nocytotoxic_4wk cytotoxic4wk chemo_4w;
-where cancer=1;
 run;
+
+ proc freq data=rawdata3;
+ tables cytotoxic_4wk  Nocytotoxic_4wk cancer*chemo_4w/nopercent nocol; 
+ run;
+ 
 /*
 proc freq data=rawdata2;
 tables       Chronic_Kidney_Disease 
@@ -245,3 +242,22 @@ set rawdata7;
 where age>=18;
 run;
 
+
+
+*check how many missings in obesity;
+proc freq data=rawdata7;
+tables obesity01 overweight01 N_comorbity_gp N_Posi_Comorb_gp;
+*where BMI>0 and BMI<18.5 and age_in_month=240;
+where cancer=0 and age>=18;
+run;
+
+proc freq data=B.rawdata;
+tables chemo_4w;
+where cancer=1;
+run;
+
+
+proc freq data=B.rawdata;
+tables cytotoxic_4wk*Nocytotoxic_4wk/nopercent norow nocol;
+where cancer=1;
+run;

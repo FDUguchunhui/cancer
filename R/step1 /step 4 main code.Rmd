@@ -273,11 +273,7 @@ all(dat[!is.na(dat$smoke_by_icd_group), ]$smoke_by_icd_group == rawdata[!is.na(r
 ```{r}
 colnames(rawdata)
 ```
-<<<<<<< Updated upstream
-=======
 
-
->>>>>>> Stashed changes
 ```{r}
 colnames(dat)
 ```

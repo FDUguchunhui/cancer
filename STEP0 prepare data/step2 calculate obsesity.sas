@@ -444,13 +444,14 @@ if sex=2 and age_in_month>=	240.5	and age_in_month<	241	then do;	P5=	17.81856	; 
 
 /*define obese: age<20, BMI>percentile 95; age>=20, BMI are categorized*/
 /*age<20*/
-if age_in_month<240 and BMI>0 and BMI<=P5  then obese_overweight="a:underweight";
-else if age_in_month<240 and BMI>P5 and BMI<=P85 then obese_overweight="b:normal";
-else if age_in_month<240 and BMI>P85 and BMI<=P95  then obese_overweight="c:overweight";
-else if age_in_month<240 and BMI>P95 then obese_overweight="d:obese";
+
+if age_in_month~=. and age_in_month<240 and P5~=. and BMI>0 and BMI<=P5  then obese_overweight="a:underweight";
+else if age_in_month~=. and age_in_month<240 and P5~=. and P85~=. and BMI>P5 and BMI<=P85 then obese_overweight="b:normal";
+else if age_in_month~=. and age_in_month<240 and P85~=. and P95~=. and BMI>P85 and BMI<=P95  then obese_overweight="c:overweight";
+else if age_in_month~=. and age_in_month<240 and P95~=. and BMI>P95 then obese_overweight="d:obese";
 
 /*age>=20*/
-if age_in_month>240 and BMI>0 and BMI<18.5 then obese_overweight="a:underweight";
+if age_in_month>=240 and BMI>0 and BMI<18.5 then obese_overweight="a:underweight";
 else if age_in_month>=240 and BMI>=18.5 and BMI<25 then obese_overweight="b:normal";
 else if age_in_month>=240 and BMI>=25 and BMI<30 then obese_overweight="c:overweight";
 else if age_in_month>=240 and BMI>=30 then obese_overweight="d:obese";	
@@ -466,3 +467,9 @@ run;
 proc freq data=rawdata2;
 tables obese_overweight obesity01 overweight01;
 run;
+ 
+proc freq data=rawdata2;
+tables obesity01 overweight01 age_in_month;
+where BMI>0 and BMI<18.5 and age_in_month=240;
+run;
+

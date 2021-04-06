@@ -1,4 +1,4 @@
-libname B "Z:\8 GQ Zhang group";
+libname B "Z:\8 GQ Zhang group\Organized Code";
 /*PROC IMPORT OUT= B.RAWDATA_old 
             DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov
 id_20210315.xlsx" 
@@ -83,3 +83,4 @@ else if age>=75 then age_gp=">=75";
 
 run;
   
+

@@ -121,8 +121,8 @@ rawdata3 <- rawdata3 %>%
          cytotoxic4wk = ifelse(cytotoxic_4wk == 'Y', 'a. cytotoxic', 
                                ifelse(nocytotoxic_4wk == 'Y', 'b. no cytotoxic', 'c. no chemo drug')),
          # combine cytotoxic drug
-         chemo_4w = ifelse(cytotoxic4wk %in% c("a. cytotoxic", "b. no cytotoxic"), 1, 
-                           ifelse(cytotoxic4wk == 'c. no chemo drug', 0, NA))
+         chemo_4w = ifelse(cytotoxic_4wk == 'Y' || nocytotoxic_4wk == 'Y', 1, 
+                           ifelse(cytotoxic_4wk == 'N' && cytotoxic_4wk == 'N', 0, NA))
          
          )
 
@@ -275,7 +275,8 @@ rawdata5 <- rawdata5 %>%
   mutate(t = ifelse(death == 1, time_death, 
                     ifelse(death == 0, as.numeric(end_study - `covid diag date`))),
          t = ifelse(t < 0, NA, t),
-         t_greater_30 = ifelse(death == 1 && time_death > 30, 1, 0),
+         t_greater_30 = ifelse(is.na(time_death), NA, 
+                               ifelse(death == 1 && time_death > 30, 1, 0)),
          death = ifelse(is.na(time_death), death, 
                         ifelse(death == 1 && time_death > 30, 0, death)), 
          t_30 = min(t, 30))
