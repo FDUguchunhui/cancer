@@ -2,7 +2,7 @@ library(survival)
 library("survminer")
 
 #before matching;
-rawdata=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\alltime.csv",head=T)
+rawdata=read.csv(file="Z:\\8 GQ Zhang group\\Organized Code\\alltime.csv",head=T)
 fit <- survfit(Surv(T_30,  death) ~ Cancer,data = rawdata)
   
 #after matching;

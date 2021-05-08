@@ -14,20 +14,32 @@ library(qwraps2)
 library(olsrr)
 library(haven)
 library(tidyverse)
+library(summarytools)
+library(gt)
 ```
 
 
 ```{r}
-load('data/rawdata.RData')
+load('data/B_rawdata.RData')
 load('data/rawdata0.RData')
 ```
+
+```{r}
+proc_freq <- function(data, vars) {
+  for (var in vars) {
+    print(var)
+    print(freq(x = data[[var]]))
+  }
+}
+```
+
 
 
 ```{r}
 # ***Figure 1: Consort diagram;
 # proc contents data=B.rawdata0;
 # run;
-summary(rawdata)
+# summary(rawdata)
 ```
 
 
@@ -68,7 +80,7 @@ raw1_exclude <- raw1 %>%
 ```
 
 
-##bug!!!!!! 
+## not bug
 ```{r}
 # data raw2_include;
 # set raw1_include;
@@ -106,18 +118,21 @@ proc_freq(raw2_include, c('cancer'))
 # else if Surgery_4w=. then surgery4wk="z: Unknown";
 # run;
 
-rawdata <- rawdata %>% 
-  rowwise() %>% 
+
+rawdata <- B_rawdata %>% 
+  # rowwise() %>%  # rowwise is wrong in this setting since levels will be check at each row
   mutate(gender = ifelse(gender == 'Unknown', 'z: Unknown', gender),
          age_cancer_gp = ifelse(age_cancer_gp == 'miss', 'z: Unknown', age_cancer_gp),
-         age_gp= ifelse(is.na(age_gp), 'z: Unknown', age_gp),
+         # age_gp = factor(ifelse(is.na(age_gp), 'z: Unknown', age_gp), levels = c(levels(age_gp), 'z: Unknown')),
          obese_overweight = ifelse(is.na(obese_overweight), 'z: Unknown', obese_overweight),
          surgery4wk = ifelse(is.na(surgery_4w), 'z: Unknown', 
                              ifelse(surgery_4w == 1 , "Yes",
                              ifelse(surgery_4w == 0, 'No', NA)))
          )
-         
+
+rawdata$age_gp <- fct_explicit_na(rawdata$age_gp, na_level = 'z: Unknown')
 ```
+
 
 
 ```{r}
@@ -130,17 +145,17 @@ rawdata <- rawdata %>%
 # %twoway_digital_Outcome(rawdata,cancer, 0,1,severity_level,6);
 # 
 # *independent variables;
-# %twoway_nominal(rawdata, cancer, 0,1, age_gp,7);
-# %twoway_nominal(rawdata,cancer, 0,1,gender,8);
-# %twoway_nominal(rawdata,cancer, 0,1,race_gp,9);
-# %twoway_nominal(rawdata,cancer, 0,1,Region,10);
-# %twoway_nominal(rawdata,cancer, 0,1,N_comorbity_gp,11);
-# %twoway_nominal(rawdata,cancer, 0,1,N_Posi_Comorb_gp,12);
-# %twoway_nominal(rawdata,cancer, 0,1,surgery4wk,13);
-# %twoway_nominal(rawdata,cancer, 0,1,cancer_type,14);
+# two_way_table(rawdata, cancer, 0,1, age_gp,7);
+# two_way_table(rawdata,cancer, 0,1,gender,8);
+# two_way_table(rawdata,cancer, 0,1,race_gp,9);
+# two_way_table(rawdata,cancer, 0,1,Region,10);
+# two_way_table(rawdata,cancer, 0,1,N_comorbity_gp,11);
+# two_way_table(rawdata,cancer, 0,1,N_Posi_Comorb_gp,12);
+# two_way_table(rawdata,cancer, 0,1,surgery4wk,13);
+# two_way_table(rawdata,cancer, 0,1,cancer_type,14);
 # %twoway_digital(rawdata,cancer, 0,1,chemo_4w,15);
 # %twoway_digital(rawdata,cancer, 0,1,Radiation_4w,16);
-# %twoway_nominal(rawdata,cancer, 0,1,age_cancer_gp,17);
+# two_way_table(rawdata,cancer, 0,1,age_cancer_gp,17);
 # %twoway_digital(rawdata,cancer, 0,1,survive_5yr_more,18);
   
 ```
@@ -151,22 +166,551 @@ table(rawdata$death, rawdata$cancer, useNA = 'no')
 
 
 ```{r}
-options(qwraps2_markup = "markdown")
+# twoway_digital_outcome
+```
 
-table_data <- rawdata %>% 
-  select(death, cancer) %>% 
-  group_by(cancer)
-  
-our_summary1 <-
-  list("death, n(%)" =
-        list("0" = ~ qwraps2::n_perc0(death == 0),
-            "1"  = ~ qwraps2::n_perc0(death == 1))
-  )
+```{r}
+# table_data <- rawdata %>% 
+#     select(row_var, col_var) %>% 
+#     group_by(col_var)
+```
 
-summary_table(table_data, our_summary1)
+```{r}
+# # function to create two way table for two categorical variables
+# two_way_digitial_outcome <- function(data, col_var, col_var_level, row_var, row_var_level) {
+#   options(qwraps2_markup = "markdown")
+#   
+#   table_data <- rawdata %>% 
+#     select(row_var, col_var) %>% 
+#     group_by(col_var)
+#     
+#   our_summary1 <-
+#     list(col_var =
+#           list(
+#               row_var_level[1] = ~ qwraps2::n_perc(row_var_level[1]== row_var_level[1], digits = 2),
+#               row_var_level[2] = ~ qwraps2::n_perc(row_var_level[1] == row_var_level[2], digits = 2)
+#               )
+#          )
+#   
+#   group_part <- summary_table(table_data, our_summary1)
+#   
+#   
+#   our_summary2 <-
+#     list("death, n(%)" =
+#           list(
+#               row_var_level[1] = ~ qwraps2::n_perc0(row_var_level[1] == row_var_level[1], digits = 2),
+#               row_var_level[2]  = ~ qwraps2::n_perc0(row_var_level[1] == row_var_level[2], digits = 2))
+#     )
+#   
+#   row_sum_part <- summary_table(rawdata, our_summary2)
+#   
+#   
+#   final_table <- cbind(row_sum_part, group_part)
+#   
+#   print(final_table,
+#         cnames = c("total", "cancer0", "cancer1"))  
+# }
+```
+
+```{r}
+# options(qwraps2_markup = "markdown")
+# 
+# table_data <- rawdata %>% 
+#   select(death, cancer) %>% 
+#   group_by(cancer)
+#   
+# our_summary1 <-
+#   list("death, n(%)" =
+#         list(
+#             "0" = ~ qwraps2::n_perc(death == 0, digits = 2),
+#             "1"  = ~ qwraps2::n_perc(death == 1, digits = 2)
+#             )
+#        )
+# 
+# group_part <- summary_table(table_data, our_summary1)
+# 
+# 
+# our_summary2 <-
+#   list("death, n(%)" =
+#         list(
+#             "0" = ~ qwraps2::n_perc0(death == 0, digits = 2),
+#             "1"  = ~ qwraps2::n_perc0(death == 1, digits = 2))
+#   )
+# 
+# row_sum_part <- summary_table(rawdata, our_summary2)
+# 
+# 
+# final_table <- cbind(row_sum_part, group_part)
+# # 
+# # final_table[, "level"] = c(0, 1)
+# 
+# # final_table[, c('level', 'rawdata', '0', '1')]
+# 
+# print(final_table,
+#       cnames = c("total", "cancer0", "cancer1"))
 
 ```
 
+```{r}
+tab <- table(rawdata$death, rawdata$cancer, useNA = 'no')
+```
+
+
+```{r}
+# library(gmodels)
+# a <- CrossTable(rawdata$death, rawdata$cancer, missing.include=FALSE,
+#            format="SAS")
+```
+
+
+
+```{r}
+library(crosstable)
+library(rlang)
+```
+
+
+
+# two_way_table function
+```{r}
+#' create two-way cross-table
+#'
+#' @param data the data used 
+#' @param row_var variable that appear in the row position
+#' @param col_var variable that appear in the col position
+#' @return formula object
+#' @export
+#' @examples
+two_way_table <- function(data, row_var, col_var, keep_one_row_name = FALSE, margin="column", total="row", showNA = 'no', test=FALSE, ...) {
+  col_levels <- levels(as.factor(data[[col_var]]))
+  col_names <- paste(col_var, col_levels)
+  cross_table <- crosstable(data = data, cols = all_of(row_var), by=col_var, margin=margin, total="row", showNA = showNA, test=test, ...) %>% 
+    mutate(label=paste(row_var, ', n(%)')) %>% 
+    rename(
+      # UQ(paste(col_var,'0')) := '0',
+      #      UQ(paste(col_var,'1')) := '1',
+           'level' = 'variable',
+           'variable' = 'label') %>% 
+    select(-c('.id'))  
+  
+  # rename the column name of each level of column variable
+  for (i in 1:length(col_levels)) {
+    col_name <- col_names[i]
+    col_level <- col_levels[i]
+    cross_table <- rename(cross_table, !!sym(col_name) := !!sym(col_level))
+  }
+  
+  # make the order of column the same as SAS
+  cross_table <- cross_table %>% select(c('variable', 'level', 'Total', everything()))
+  # only keep one column variable name
+  if (keep_one_row_name == TRUE) {
+    cross_table[2:nrow(cross_table), 'variable'] = ''
+  }
+  # only keep one test result for this row variable
+  if(test==TRUE) {
+    cross_table[2:nrow(cross_table), 'test'] = ''
+  }
+  
+  return(cross_table)
+}
+
+```
+
+
+```{r}
+two_way_table(rawdata, 'death', 'cancer')
+```
+
+```{r}
+two_way_table(rawdata, 'inpatient', 'cancer')
+```
+```{r}
+two_way_table(rawdata, 'icu', 'cancer')
+```
+```{r}
+two_way_table(rawdata, 'ventilation', 'cancer')
+```
+```{r}
+two_way_table(rawdata, 'severity', 'cancer')
+```
+```{r}
+two_way_table(rawdata, 'severity_level',  'cancer')
+```
+
+
+# independent variables
+```{r}
+two_way_table(rawdata,'age_gp', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata,'gender', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'race_gp', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'region', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata,'n_comorbity_gp', 'cancer', keep_one_col_name = TRUE, showNA = T)
+```
+
+
+```{r}
+two_way_table(rawdata, 'n_posi_comorb_gp', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata,'surgery4wk', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'cancer_type', 'cancer', keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata,'chemo_4w', 'cancer',  keep_one_col_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'radiation_4w', 'cancer',  keep_one_row_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'age_cancer_gp', 'cancer',  keep_one_row_name = TRUE)
+```
+
+
+```{r}
+two_way_table(rawdata, 'survive_5yr_more', 'cancer')
+```
+
+
+
+
+
+
+
+
+```{r}
+# cross_tbl <- CrossTable(rawdata$death, rawdata$cancer, missing.include=FALSE,
+#            format="SAS")
+# 
+# 
+# row1 <- c('', 'total', 'cancer0', 'cancer1')
+# row2 <- c('death, n(%)', '', '', '')
+# row3 <- c('0', tab['0', '0'] + tab['0', '1'], tab['0', '0'], tab['0', '1'])
+# row4 <- c('1', tab['1', '0'] + tab['1', '1'], tab['1', '0'], tab['1', '1'])
+# tabl <- as_tibble(rbind(row1, row2, row3, row4))
+
+```
+
+```{r}
+# library(knitr)
+# library(kableExtra)
+# tabl %>%
+#   kable(col.names = NULL) %>%
+#    kable_classic(full_width = F, html_font = "Cambria")
+```
+
+data Table_outcome;
+set S1-S5;
+if level=0 or level="N" then delete;
+id=_n_;
+run;
+data Table_outcome;
+set Table_outcome S6;
+run;
+
+```{r}
+table_outcome <- rbind(
+  two_way_table(rawdata, 'death', 'cancer'),
+  two_way_table(rawdata, 'inpatient', 'cancer'),
+  two_way_table(rawdata, 'icu', 'cancer'),
+  two_way_table(rawdata, 'ventilation', 'cancer'),
+  two_way_table(rawdata, 'severity', 'cancer')
+)
+
+table_outcome <- table_outcome %>% filter(level == '1')
+table_outcome <- rbind(table_outcome, two_way_table(rawdata, 'severity_level', 'cancer'))
+table_outcome
+```
+# ??error  this description table ignore missing in many variables
+proc sort data=Table_outcome; by id; run;
+data Table_indep;
+set S7-S18;
+id=_n_;
+run;
+
+proc sort data=Table_indep; by id; run;
+```{r}
+rawdata <- rawdata %>% droplevels()
+
+table_indep <- rbind(
+  two_way_table(rawdata,'age_gp', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata,'gender', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'race_gp', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'region', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata,'n_comorbity_gp', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'n_posi_comorb_gp', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata,'surgery4wk', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'cancer_type', 'cancer', keep_one_row_name = TRUE),
+  two_way_table(rawdata,'chemo_4w', 'cancer',  keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'radiation_4w', 'cancer',  keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'age_cancer_gp', 'cancer',  keep_one_row_name = TRUE),
+  two_way_table(rawdata, 'survive_5yr_more', 'cancer', keep_one_row_name = TRUE)
+)
+
+table_indep
+```
+
+*independent variables;
+%twoway_digital_Outcome(rawdata, cancer, 0,1,Chronic_Kidney_Disease,1);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Chronic_Obstructive_Pulmonary,2);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Down_Syndrome,3);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Solid_Organ_Transplant,4);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,obesity01,5);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,pregnancy,6);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Heart_Failure,7);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Coronary_Artery_Disease,8);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Cardiomyopathies,9);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Sickle_Cell_Disease,10);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,smoke_yn,11);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Type_2_Diabetes_Mellitus,12); 
+%twoway_digital_Outcome(rawdata, cancer, 0,1,Asthma,13);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Cerebrovascular,14);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Cystic_Fibrosis,15);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Hypertension,16);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Other_Immuno,17);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Liver_Disease,18);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Dementia,19);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,overweight01,20);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Pulmonary_Fibrosis,21);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Thalassemia,22);
+%twoway_digital_Outcome(rawdata,cancer, 0,1,Type_1_Diabetes_Mellitus,23); 
+
+# Appendix Table 1;
+data com_indep;
+set S1-S23;
+id=_n_;
+if level=0 then delete;
+run;
+proc sort data=com_indep; by id; run;
+
+data com_indep;
+set S1-S23;
+id=_n_;
+if level=0 then delete;
+run;
+proc sort data=com_indep; by id; run;
+```{r}
+# crosstable(rawdata, var_lst, by='cancer') %>% 
+#   select(everything()) %>% 
+#   as_flextable()
+```
+
+
+```{r}
+var_lst = tolower(c('Chronic_Kidney_Disease', 
+                    'Chronic_Obstructive_Pulmonary',
+                    'Down_Syndrome',
+                    'Solid_Organ_Transplant',
+                    'obesity01',
+                    'pregnancy',
+                    'Heart_Failure',
+                    'Coronary_Artery_Disease',
+                    'Cardiomyopathies',
+                    'Sickle_Cell_Disease',
+                    'smoke_yn',
+                    'Type_2_Diabetes_Mellitus',
+                    'Asthma',
+                    'Cerebrovascular',
+                    'Cystic_Fibrosis',
+                    'Hypertension',
+                    'Other_Immuno',
+                    'Liver_Disease',
+                    'Dementia',
+                    'overweight01',
+                    'Pulmonary_Fibrosis',
+                    'Thalassemia',
+                    'Type_1_Diabetes_Mellitus'))
+
+table_lst <- list()
+for (i in 1:length(var_lst)) {
+   table_lst[[i]] <- two_way_table(rawdata, var_lst[i], 'cancer')
+}
+
+
+com_indep <-  bind_rows(table_lst)
+
+com_indep <- com_indep %>% 
+  filter(level == 1)
+
+com_indep
+```
+
+#Table 3;
+data rawdata_cancer; set rawdata; where cancer=1; run;
+data rawdata_nocancer; set rawdata; where cancer=0; run;
+```{r}
+rawdata_cancer <- rawdata %>% filter(cancer == 1)
+rawdata_nocancer <- rawdata %>% filter(cancer == 0)
+```
+
+
+%macro one_factor(rawdata_cancer,death);
+proc datasets; delete S7-S19; run;
+
+%twoway_nominal2(&rawdata_cancer,&death, 0,1, age_gp,7);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,gender,8);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,race_gp,9);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,region,10);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,N_comorbity_gp,11);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,N_Posi_Comorb_gp,12);
+%twoway_nominal2(&rawdata_cancer,&death, 0,1,surgery4wk,13);
+
+data &rawdata_cancer.&death;
+set S7-S13;
+drop total;
+id=_n_;
+keep id variable level &death.1;
+run;
+proc sort data=&rawdata_cancer.&death; by id; run;
+%mend;
+```{r}
+one_factor <- function(data, row_var_list, col_var, keep_one_row_name = TRUE, test=FALSE, ...) {
+  
+  table_lst <- list()
+  for (i in 1:length(row_var_list)) {
+     table_lst[[i]] <- two_way_table(data=data, row_var=row_var_list[i], col_var=col_var, keep_one_row_name=TRUE, test=test, margin = c('row'), ...)
+  }
+  
+  com_indep <-  bind_rows(table_lst)
+  com_indep <- com_indep %>% select(-c(sym(paste(col_var, 0)), 'Total'))
+  
+  return(com_indep)
+}
+
+```
+
+
+# bug? colum sum not equal to 100%
+```{r}
+var_lst <- c('age_gp', 'gender', 'race_gp', 'region', 'n_comorbity_gp', 
+             'n_posi_comorb_gp', 'surgery4wk')
+rawdata_cancer_death <- one_factor(rawdata_cancer, var_lst, 'death')
+
+```
+
+```{r}
+rawdata_cancer_icu <- one_factor(rawdata_cancer, var_lst, 'icu')
+```
+
+
+```{r}
+rawdata_cancer_ventilation <- one_factor(rawdata_cancer, var_lst, 'ventilation')
+```
+
+
+```{r}
+rawdata_cancer_inpatient <- one_factor(rawdata_cancer, var_lst, 'inpatient')
+```
+
+
+data within_cancer;
+merge rawdata_cancerdeath 
+rawdata_cancerICU rawdata_cancerVentilation
+rawdata_cancerinpatient;
+by id;
+run; 
+```{r}
+within_cancer <- cbind(rawdata_cancer_death,
+'icu 1' = rawdata_cancer_icu[, 'icu 1'], 'ventilation 1'= rawdata_cancer_ventilation[, 'ventilation 1'],
+'inpatient 1'= rawdata_cancer_inpatient[, 'inpatient 1'])
+within_cancer 
+```
+
+%one_factor(rawdata_nocancer,death);
+%one_factor(rawdata_nocancer,ICU);
+%one_factor(rawdata_nocancer,Ventilation); 
+%one_factor(rawdata_nocancer,inpatient); 
+ 
+```{r}
+rawdata_nocancer_death <- one_factor(rawdata_nocancer, var_lst, 'death')
+rawdata_nocancer_icu <- one_factor(rawdata_nocancer, var_lst, 'icu')
+rawdata_nocancer_ventilation <- one_factor(rawdata_nocancer, var_lst, 'ventilation')
+rawdata_nocancer_inpatient <- one_factor(rawdata_nocancer, var_lst, 'inpatient')
+```
+
+data within_nocancer;
+merge rawdata_nocancerdeath  
+rawdata_nocancerICU rawdata_nocancerVentilation
+rawdata_nocancerinpatient;
+by id;
+death1_noca= death1;
+ICU1_noca=ICU1;
+Ventilation1_noca=Ventilation1;
+inpatient1_noca= inpatient1;
+```{r}
+within_nocancer <- cbind(rawdata_nocancer_death,
+'icu1_noca' = rawdata_nocancer_icu[, 'icu 1'], 'ventilation1_noca'= rawdata_nocancer_ventilation[, 'ventilation 1'],
+'inpatient1_noca'= rawdata_nocancer_inpatient[, 'inpatient 1'])
+within_nocancer <- within_nocancer %>% rename('death1_noca' = 'death 1')
+within_nocancer
+```
+# table 3
+
+data Table3_part1;
+merge within_cancer within_nocancer;
+by id;
+run;
+```{r}
+table3_part1 <- cbind(within_cancer, within_nocancer[, 3:ncol(within_nocancer)])
+```
+
+
+# Table 4, models;
+data rawdata;
+set B.rawdata;
+if gender="Unknown" then gender=""; *to make missing not to participate in models;
+if age_cancer_gp="miss" then age_cancer_gp="";  
+if age_gp="z: Unk" then age_gp="";
+run;
+```{r}
+work_rawdata <- B_rawdata %>% mutate(
+  gender = ifelse('Unknown', NA, gender),
+  age_cancer_gp = ifelse('miss', NA, age_cancer_gp),
+  age_gp = ifelse('z: Unknown', NA, age_gp)
+)
+
+```
+
+ 
+proc freq data=B.rawdata;
+tables chemo_4w;
+run;
+
+```{r}
+crosstable(B_rawdata, 'chemo_4w')
+```
+
+
+
+data rawdata_cancer; set rawdata; where cancer=1; run;
+data rawdata_nocancer; set rawdata; where cancer=0; run;
 ```{r}
 
 ```
@@ -184,6 +728,63 @@ summary_table(table_data, our_summary1)
 #             DBMS=CSV REPLACE;
 #      PUTNAMES=YES;
 # RUN;
+```
+
+```{r}
+library(survival)
+library("survminer")
+
+#before matching;
+rawdata=read_csv("data/alltime.csv",head=T)
+fit <- survfit(Surv(T_30,  death) ~ Cancer,data = rawdata)
+  
+#after matching;
+matched_data=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\matched_data.csv",head=T)
+fit_aftermatch <- survfit(Surv(T_30, death) ~ Cancer,data = matched_data)
+ggsurvplot(fit_aftermatch, data = matched_data, ylim = c(0.85,1),conf.int = TRUE)
+
+splots <- list()
+splots[[1]] <- ggsurvplot(fit, data = rawdata,xlim=c(0,30), ylim = c(0.9,1),,xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11,  "black"),font.y = c(11, "black"),linetype = 1,size = 1,palette = "lancet") 
+splots[[2]] <- ggsurvplot(fit_aftermatch , data = matched_data, xlim=c(0,30),ylim = c(0.9,1),xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11, "black"),
+   font.y = c(11,  "black"),linetype = 1,size = 1,palette = "lancet")
+   
+arrange_ggsurvplots(splots, print = TRUE,
+  ncol = 2, nrow = 1, risk.table.height = 0.4,ggtheme = theme_minimal())
+```
+
+
+```{r}
+####################################PLOT FOR LUNG CANCER;
+library(survival)
+library("survminer")
+
+#before matching;
+rawdata=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\alltime_lung_cancer.csv",head=T)
+fit <- survfit(Surv(T_30,  death) ~ Cancer,data = rawdata)
+  
+#after matching;
+matched_data=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\matched_data_lung_cancer.csv",head=T)
+fit_aftermatch <- survfit(Surv(T_30, death) ~ Cancer,data = matched_data)
+ggsurvplot(fit_aftermatch, data = matched_data, ylim = c(0.85,1),conf.int = TRUE)
+
+splots <- list()
+splots[[1]] <- ggsurvplot(fit, data = rawdata,xlim=c(0,30), ylim = c(0.9,1),,xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11,  "black"),font.y = c(11, "black"),linetype = 1,size = 1,palette = "lancet") 
+splots[[2]] <- ggsurvplot(fit_aftermatch , data = matched_data, xlim=c(0,30),ylim = c(0.9,1),xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11, "black"),
+   font.y = c(11,  "black"),linetype = 1,size = 1,palette = "lancet")
+   
+arrange_ggsurvplots(splots, print = TRUE,
+  ncol = 2, nrow = 1, risk.table.height = 0.4,ggtheme = theme_minimal())
+  
+```
+
+
+
+
+
+
+
+
+```{r}
 #  
 # data matched_data;
 # set matched;
@@ -224,6 +825,28 @@ summary_table(table_data, our_summary1)
 # 
 # ols_step_both_p(fit, pent = 0.1, prem = 0.3, details = TRUE)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

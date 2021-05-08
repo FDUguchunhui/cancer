@@ -248,7 +248,7 @@ run;
 proc freq data=rawdata7;
 tables obesity01 overweight01 N_comorbity_gp N_Posi_Comorb_gp;
 *where BMI>0 and BMI<18.5 and age_in_month=240;
-where cancer=0 and age>=18;
+*where cancer=0 and age>=18;
 run;
 
 proc freq data=B.rawdata;

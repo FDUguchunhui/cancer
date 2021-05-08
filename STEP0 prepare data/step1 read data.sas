@@ -1,4 +1,4 @@
-libname B "Z:\8 GQ Zhang group\Organized Code";
+libname B "Y:\Documents\cancer\data";
 /*PROC IMPORT OUT= B.RAWDATA_old 
             DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov
 id_20210315.xlsx" 

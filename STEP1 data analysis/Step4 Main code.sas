@@ -1,5 +1,5 @@
-libname B "Z:\8 GQ Zhang group";
-%include "Z:\8 GQ Zhang group\STEP1 data analysis\Macro Freq no p value.sas";
+libname B "Y:\Documents\cancer\data";
+%include "Y:\Documents\cancer\STEP1 data analysis\Macro Freq no p value.sas";
 
 ***Figure 1: Consort diagram;
 proc contents data=B.rawdata0;
@@ -216,6 +216,10 @@ if age_cancer_gp="miss" then age_cancer_gp="";
 if age_gp="z: Unk" then age_gp="";
 run;
  
+proc freq data=B.rawdata;
+tables chemo_4w;
+run;
+
 data rawdata_cancer; set rawdata; where cancer=1; run;
 data rawdata_nocancer; set rawdata; where cancer=0; run;
    
@@ -436,7 +440,7 @@ var age N_comorbity N_Posi_Comorb;
 run;
 
 PROC EXPORT DATA= WORK.DATA_FOR_MATCHING 
-            OUTFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\Before_matching.csv" 
+            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\Before_matching.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN; 
@@ -445,7 +449,7 @@ RUN;
 
 *matched data;
 PROC IMPORT OUT= WORK.after_match
-            DATAFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\matched_cancer_geq_18.csv" 
+            DATAFILE= "Z:\8 GQ Zhang group\Organized Code\matched_cancer_geq_18.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
      DATAROW=2; 
@@ -585,7 +589,7 @@ run;
 
 
 options orientation=landscape;
-ods rtf file="Z:\8 GQ Zhang group\STEP1 data analysis\OUTPUT\All tables.rtf" startpage=never;
+ods rtf file="Z:\8 GQ Zhang group\Organized Code\All tables.rtf" startpage=never;
 ods text="0. Two groups, 0 for non-cancer, 1 for cancer";
 proc freq data=rawdata;
 tables cancer;
@@ -674,7 +678,7 @@ set B.rawdata;
 keep cancer T_30 death;
 run;
 PROC EXPORT DATA= WORK.alltime  
-            OUTFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\alltime.csv" 
+            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\alltime.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN;
@@ -684,14 +688,8 @@ set matched;
 keep cancer T_30  death;
 run;
 PROC EXPORT DATA= WORK.matched_data  
-            OUTFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\matched_data.csv" 
+            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\matched_data.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN;
- 
-ods rtf file="Z:\8 GQ Zhang group\Manuscript\Files sent to Huili\cancer_freq.rtf";
-proc freq data=B.rawdata;
-tables cancer_2digit;
-where cancer=1;
-run;
-ods rtf close;
+  
