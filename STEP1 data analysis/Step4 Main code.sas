@@ -20,8 +20,8 @@ data raw2_include;
 set raw1_include;
 where COVID_diag_date>=cancer_date;
 run;
-proc freq data=raw2_include;
-tables cancer;
+proc freq data=rawdata5;
+tables deceased_indicator death;
 run;
 ***Table 1 and 2;
 data rawdata;
@@ -223,6 +223,21 @@ run;
 data rawdata_cancer; set rawdata; where cancer=1; run;
 data rawdata_nocancer; set rawdata; where cancer=0; run;
    
+proc contents data=rawdata_cancer;
+run;
+
+proc freq data = rawdata_cancer;
+tables age_gp  gender race_gp 
+Surgery_4w cancer_type
+survive_5yr_more
+chemo_4w 
+Radiation_4w;
+run;
+
+proc means data  = rawdata_cancer;
+var t_30;
+run;
+
 ***MODEL 1:Cox regression;
 proc phreg data=rawdata_cancer;
 class  age_gp(ref=first) gender(ref=first)    race_gp(ref="Non-hispanic white")
@@ -440,7 +455,7 @@ var age N_comorbity N_Posi_Comorb;
 run;
 
 PROC EXPORT DATA= WORK.DATA_FOR_MATCHING 
-            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\Before_matching.csv" 
+            OUTFILE= "Y:\Documents\cancer\data\Before_matching.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN; 
@@ -449,7 +464,7 @@ RUN;
 
 *matched data;
 PROC IMPORT OUT= WORK.after_match
-            DATAFILE= "Z:\8 GQ Zhang group\Organized Code\matched_cancer_geq_18.csv" 
+            DATAFILE= "Y:\Documents\cancer\data\matched_cancer_geq_18.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
      DATAROW=2; 
@@ -494,11 +509,28 @@ data Table_outcome_matched;
 set Table_outcome_matched S6;
 run;
 
+
+/*proc means data=matched;*/
+/*var t_30; */
+/*run;*/
+/**/
+/*proc freq data=matched;*/
+/*tables  death cancer age_gp gender  */
+/*race_gp*/
+/*N_comorbity*/
+/*N_Posi_Comorb*/
+/*Surgery_4w;*/
+/*run;*/
+
+proc freq data=matched;
+tables death;
+run;
+
 proc phreg data=matched;
-class  age_gp(ref=first) gender(ref=first)    race_gp(ref="Non-hispanic white")
-Surgery_4w(ref=first)  
+class  age_gp(ref=first) gender(ref=first)  race_gp(ref="Non-hispanic white")
+Surgery_4w(ref=first) death
 / param=ref;
-model T_30*death(0)=cancer age_gp gender  
+model T_30*death(0)= cancer age_gp gender  
 race_gp
 N_comorbity
 N_Posi_Comorb
@@ -589,7 +621,7 @@ run;
 
 
 options orientation=landscape;
-ods rtf file="Z:\8 GQ Zhang group\Organized Code\All tables.rtf" startpage=never;
+ods rtf file="Y:\Documents\cancer\data\output\All tables.rtf" startpage=never;
 ods text="0. Two groups, 0 for non-cancer, 1 for cancer";
 proc freq data=rawdata;
 tables cancer;
@@ -678,7 +710,7 @@ set B.rawdata;
 keep cancer T_30 death;
 run;
 PROC EXPORT DATA= WORK.alltime  
-            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\alltime.csv" 
+            OUTFILE= "Y:\Documents\cancer\data\\alltime.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN;
@@ -688,7 +720,7 @@ set matched;
 keep cancer T_30  death;
 run;
 PROC EXPORT DATA= WORK.matched_data  
-            OUTFILE= "Z:\8 GQ Zhang group\Organized Code\matched_data.csv" 
+            OUTFILE= "Y:\Documents\cancer\data\matched_data.csv" 
             DBMS=CSV REPLACE;
      PUTNAMES=YES;
 RUN;

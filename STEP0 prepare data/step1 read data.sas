@@ -1,49 +1,104 @@
 libname B "Y:\Documents\cancer\data";
-/*PROC IMPORT OUT= B.RAWDATA_old 
-            DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov
-id_20210315.xlsx" 
-            DBMS=EXCEL REPLACE;
-     RANGE="Cancer_covid_20210315$"; 
+
+
+
+
+/**/
+/*PROC IMPORT OUT= B.RAWDATA_old */
+/*            DATAFILE= "Y:\Documents\cancer\data\Cancer_cov*/
+/*id_20210315.xlsx" */
+/*            DBMS=EXCEL REPLACE;*/
+/*     RANGE="Cancer_covid_20210315$"; */
+/*     GETNAMES=YES;*/
+/*     MIXED=NO;*/
+/*     SCANTEXT=YES;*/
+/*     USEDATE=YES;*/
+/*     SCANTIME=YES;*/
+/*RUN;*/
+/**/
+/*data B.rawdata_old;*/
+/*set B.rawdata_old;*/
+/*drop MA_Cytotoxic_4w*/
+/*MA_Non_Cytotoxic_4w*/
+/*PR_Cytotoxic_4w*/
+/*PR_Non_Cytotoxic_4w*/
+/*PS_Cytotoxic_4w*/
+/*PS_Non_Cytotoxic_4w*/
+/*Radiation_4w*/
+/*Surgery_4w;*/
+/*run;*/
+/**/
+/*PROC IMPORT OUT= B.recent */
+/*            DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_covid_20210319_addtional.xlsx" */
+/*            DBMS=EXCEL REPLACE;*/
+/*     RANGE="Cancer_covid_20210319_addtional$"; */
+/*     GETNAMES=YES;*/
+/*     MIXED=NO;*/
+/*     SCANTEXT=YES;*/
+/*     USEDATE=YES;*/
+/*     SCANTIME=YES;*/
+/*RUN;*/
+/**/
+/*proc sort data=B.rawdata_old; by Patient_ID; run;*/
+/*proc sort data=B.recent; by Patient_ID; run;*/
+/**/
+/*data B.rawdata0;*/
+/*merge B.rawdata_old(in=a) B.recent;*/
+/*by Patient_ID;*/
+/*if a;*/
+/*run;*/
+
+
+
+
+/**/
+/*PROC IMPORT OUT= B.RAWDATA0 */
+/*            DATAFILE= "Y:\Documents\cancer\data\Cancer_covid_20210503_nores.xlsx" */
+/*            DBMS=EXCEL REPLACE;*/
+/*     RANGE="Cancer_covid_20210503$A1:H35"; */
+/*     GETNAMES=YES;*/
+/*     MIXED=NO;*/
+/*     SCANTEXT=YES;*/
+/*     USEDATE=YES;*/
+/*     SCANTIME=YES;*/
+/*RUN;*/
+
+
+
+
+
+
+
+PROC IMPORT OUT= B.rawdata0 
+            DATAFILE= "Y:\Documents\cancer\data\Cancer_covid_20210503.cs
+v" 
+            DBMS=CSV REPLACE;
      GETNAMES=YES;
-     MIXED=NO;
-     SCANTEXT=YES;
-     USEDATE=YES;
-     SCANTIME=YES;
+     DATAROW=2; 
+	 guessingrows=32767;
 RUN;
 
-data B.rawdata_old;
-set B.rawdata_old;
-drop MA_Cytotoxic_4w
-MA_Non_Cytotoxic_4w
-PR_Cytotoxic_4w
-PR_Non_Cytotoxic_4w
-PS_Cytotoxic_4w
-PS_Non_Cytotoxic_4w
-Radiation_4w
-Surgery_4w;
+
+/*data B.rawdata0;*/
+/*set B.RAWDATA0;*/
+/*drop MA_Cytotoxic_4w*/
+/*MA_Non_Cytotoxic_4w*/
+/*PR_Cytotoxic_4w*/
+/*PR_Non_Cytotoxic_4w*/
+/*PS_Cytotoxic_4w*/
+/*PS_Non_Cytotoxic_4w*/
+/*Radiation_4w*/
+/*Surgery_4w;*/
+/*run;*/
+
+proc sort data=B.rawdata0; by Patient_ID; run;
+
+
+
+
+proc contents data=B.rawdata0;
 run;
 
-PROC IMPORT OUT= B.recent 
-            DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_covid_20210319_addtional.xlsx" 
-            DBMS=EXCEL REPLACE;
-     RANGE="Cancer_covid_20210319_addtional$"; 
-     GETNAMES=YES;
-     MIXED=NO;
-     SCANTEXT=YES;
-     USEDATE=YES;
-     SCANTIME=YES;
-RUN;
-
-proc sort data=B.rawdata_old; by Patient_ID; run;
-proc sort data=B.recent; by Patient_ID; run;
-
-data B.rawdata0;
-merge B.rawdata_old(in=a) B.recent;
-by Patient_ID;
-if a;
-run;
-*/
-  
 data rawdata1;
 set B.rawdata0;
 if ETHNICITY="Not Hispanic" and RACE="Caucasian" then race_gp="Non-hispanic white";
@@ -75,7 +130,7 @@ event_count=death+inpatient+ICU+Ventilation;
  
 COVID_year=year(COVID_diag_date);
 age=(covid_year-birth_yr);
-if age>=0 and age<18 then age_gp="0-18  ";
+if age>=0 and age<18 then age_gp="0-18";
 else if age>=18 and age<50 then age_gp="18-50";
 else if age>=50 and age<65 then age_gp="50-65";
 else if age>=65 and age<75 then age_gp="65-75";

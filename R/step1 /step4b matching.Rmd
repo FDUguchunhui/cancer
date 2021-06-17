@@ -1,0 +1,88 @@
+---
+title: "matching"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load('data/final_dat.RData')
+```
+
+
+# matching
+```{r}
+# *Export data to do matching;
+# data DATA_FOR_MATCHING;
+# set B.rawdata;
+# keep Patient_ID cancer  GENDER   REGION age            
+# race_gp N_comorbity N_Posi_Comorb  
+# ;
+# if Patient_ID="" 
+# or  GENDER="Unknown" or     
+# REGION="z: Other/Unkn"      
+# or  age=. or cancer=.  or   
+# N_comorbity=. or N_Posi_Comorb=. then delete; *delete missing except race because other and missing are mixed and there's a lot;
+# run;
+
+#match on cancer
+# mydata <- read.csv ("data/Before_matching.csv")
+
+dat_for_matching <- final_dat %>% 
+  dplyr::select(patient_id, cancer, gender, region, age_gp, race_gp, n_comorbity_gp, n_posi_comorb_gp, t_30, death) %>% 
+  drop_na()
+```
+
+
+#
+```{r}
+# make a demo sample
+# dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
+```
+
+```{r}
+# age or age_gp
+library(MatchIt)
+m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp + n_comorbity_gp + n_posi_comorb_gp) ^2, data = dat_for_matching, method = "nearest", ratio =1)
+```
+
+
+```{r}
+summary(m.out)
+```
+
+```{r}
+m.data <- match.data(m.out)
+```
+
+
+```{r}
+library(cobalt)
+love.plot(m.out, abs = TRUE, binary = 'std',
+          thresholds = c(m = .1),
+          position = "bottom")
+```
+
+
+```{r}
+coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data, robust = TRUE, cluster = subclass)
+summary(coxphfit)
+```
+
+```{r}
+coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data)
+summary(coxphfit)
+```
+
+
+
+
+
+
+
+
+
+
+

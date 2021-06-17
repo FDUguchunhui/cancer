@@ -100,21 +100,25 @@ else if death=0 then T=(end_study-COVID_diag_date);
 *if T<0 then T=.; *for those whose COVID_diag_date is over 
 *For those die after 30 days, death will be changed to "0" (means no death);
 T_greater_30=0;
-if death=1 and time_death>30 then do; T_greater_30=1; death=0;end;
+if death=1 and time_death > 30 then do; T_greater_30=1; death=0;end;
 
 if T~=. then T_30=min(T,30);
 
 run;
  
+proc contents data=rawdata5;
+run;
 
- proc means data=rawdata5 min print;
- var T_30;
- where death=1;
+ proc means data=rawdata5;
+ var time_death;
+/* where death=1;*/
  run;
 
 proc print data=rawdata5 (obs=20);
-var death DATE_OF_DEATH COVID_diag_date  time_death T T_30;
+var death DATE_OF_DEATH COVID_diag_date  time_death;
  run;
+
+
 
 
 proc freq data=rawdata4;

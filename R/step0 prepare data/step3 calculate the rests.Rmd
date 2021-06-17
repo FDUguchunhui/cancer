@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(summarytools)
+library(crosstable)
 ```
 
 
@@ -32,6 +33,7 @@ proc_freq <- function(data, vars) {
 proc_freq(rawdata2, c('chronic_kidney_disease', 'chronic_obstructive_pulmonary', 'down_syndrome', 'solid_organ_transplant',                              'obesity01', 'pregnancy', 'heart_failure', 'coronary_artery_disease', 'cardiomyopathies', 'sickle_cell_disease', 'smoke_yn', 'type_2_diabetes_mellitus'))
 ```
 
+# rawdata3
 ## bug??
 ```{r}
 # data rawdata3; set rawdata2;
@@ -95,7 +97,7 @@ rawdata3 <- rawdata3 %>%
          )
 ```
 
-#bug!!!!!!!!!!!!!
+#bug (have been fixed)
 ```{r}
 # if MA_Cytotoxic_4w=1 or PS_Cytotoxic_4w=1 or PR_Cytotoxic_4w=1 then cytotoxic_4wk="Y";
 # else cytotoxic_4wk="N";
@@ -162,6 +164,9 @@ run;*/
 # }
 ```
 
+
+
+# rawdata4
 ```{r}
 # data rawdata4;
 # set rawdata3; 
@@ -194,8 +199,6 @@ rawdata4 <- rawdata3 %>%
 ```
 
 ```{r}
-
-
 rawdata4 <- rawdata4 %>% 
   rowwise() %>% 
   mutate(
@@ -224,7 +227,7 @@ rawdata4 <- rawdata4 %>%
                                 ifelse(age_at_cancer >= 20 && age_at_cancer < 40, '20-40', 
                                        ifelse(age_at_cancer >= 40 && age_at_cancer < 60, '40-60',
                                               ifelse(age_at_cancer >= 60 && age_at_cancer < 80, '60-80',
-                                                     ifelse(age_at_cancer >= 80, '>=80', "miss"))))))
+                                                     ifelse(age_at_cancer >= 80, '>=80', NA))))))
 ```
 
 
@@ -241,7 +244,11 @@ proc_freq(rawdata4[rawdata4$cancer == 1, ], vars)
 
 
 
-##bug!!!!!!!!!!
+
+
+# rawdata5
+##bug (not fixed)
+Anytime you use > you should check whether it is not missing in sas
 ```{r}
 # data rawdata5;
 # set rawdata4;
@@ -268,33 +275,19 @@ rawdata5 <- rawdata4 %>%
   mutate(time_death = as.numeric(date_of_death - `covid diag date`),
          time_death = ifelse(time_death >= -15 && time_death < 0, 0, 
                              ifelse(time_death < -15, NA, time_death)),
-         end_study = as.Date('2021-01-28')
-         )
-
-
-```
-
-```{r}
-rawdata5 <- rawdata5 %>% 
+         end_study = as.Date('2021-05-03')
+         ) %>% 
   rowwise() %>% 
   mutate(t = ifelse(death == 1, time_death, 
                     ifelse(death == 0, as.numeric(end_study - `covid diag date`))),
          t = ifelse(t < 0, NA, t),
-         t_greater_30 = ifelse(is.na(time_death), NA, 
-                               ifelse(death == 1 && time_death > 30, 1, 0)),
-         death = ifelse(is.na(time_death), death, 
-                        ifelse(death == 1 && time_death > 30, 0, death)), 
+         # t_greater_30 = ifelse(death == 1 && time_death > 30, 1, 0),
+         death = ifelse(death == 1 && time_death > 30, 0, death),
          t_30 = min(t, 30))
 ```
 
 
 ```{r}
-# proc_means <- function(data, vars) {
-#   for(var in vars) {
-#     print()
-#   }
-# }
-
 min(rawdata5[rawdata5$death == 1, ]$t_30, na.rm = TRUE)
 ```
 
@@ -314,6 +307,9 @@ head(rawdata5[, c('death', 'date_of_death', 'covid diag date', 'time_death', 't'
 # tables death;
 # run;
 
+
+# crosstable(rawdata4, cols = 'death')
+
 proc_freq(rawdata4, c('death'))
 ```
 
@@ -326,7 +322,9 @@ proc_freq(rawdata4, c('death'))
 proc_freq(rawdata5, c('death'))
 ```
 
-##typo !!!!!
+
+# rawdata6
+##typo! (has been fixed)
 ```{r}
 # data rawdata6;
 # set rawdata5;
@@ -362,7 +360,7 @@ rawdata6 <- rawdata5 %>%
          cancer_type = ifelse(cancer_2digit %in% solid_cancer_codes, 'a. solid', 
                               ifelse(cancer_2digit %in% liquid_cancer_codes, 'b. liquid',
                                      ifelse(cancer_2digit == 'C76', 'c.Multitype', NA))),
-         region = ifelse(region == 'Other/Unknown', 'z: Other/Unknown', region)
+         region = ifelse(region == 'Other/Unknown', NA, region)
          
          )
 
@@ -378,6 +376,8 @@ rawdata6 <- rawdata5 %>%
 ```
 
 
+
+
 ```{r}
 # proc freq data=rawdata6;
 # tables death inpatient ICU Ventilation;
@@ -386,7 +386,8 @@ rawdata6 <- rawdata5 %>%
 
 proc_freq(rawdata6, c('death', 'inpatient', 'icu', 'ventilation'))
 ```
-# bug!!!
+# rawdata7
+## bug!!!
 ```{r}
 # data rawdata7;
 # set rawdata6;
@@ -397,7 +398,7 @@ proc_freq(rawdata6, c('death', 'inpatient', 'icu', 'ventilation'))
 # Ventilation~=. then severity_level=2;
 # 
 # if death=. then delete; *in outcomes, only death has missing;
-# if cancer_after_COVID=1 then delete;   # cancer_after_COVID only have missing and 1 two values
+# if cancer_after_COVID=1 then delete;   # cancer_after_COVID only have missing and 1 two values (which is a weird logic)
 # run;
 
 rawdata7 <- rawdata6 %>% 
@@ -407,7 +408,7 @@ rawdata7 <- rawdata6 %>%
                                         ifelse(death == 1, 3, 2)))
          ) %>% 
   filter(!is.na(death)) %>% 
-  filter(is.na(cancer_after_covid) || !(cancer_after_covid == 1)) # code logic weired
+  filter(is.na(cancer_after_covid) || !(cancer_after_covid == 1)) # code logic weird
 ```
 
 
@@ -430,21 +431,22 @@ rawdata7 <- rawdata7 %>%
 proc_freq(rawdata7, c('death', 'severity_level', 'severity', 'smoke_status'))
 ```
 
-
+# B_rawdata
 ```{r}
 # data B.rawdata;
 # set rawdata7;
 # where age>=18;
 # run;
 
-B_rawdata <- rawdata7 %>% 
-  filter(age >= 18)
+main_data <- rawdata7 %>% 
+  filter(age >= 18) %>% 
+  droplevels()
 
-save(B_rawdata, file = 'data/B_rawdata.RData')
+save(main_data, file = 'data/main_data.RData')
 ```
 
 ```{r}
-proc_freq(rawdata, c('death', 'severity_level', 'severity', 'smoke_status'))
+# proc_freq(rawdata, c('death', 'severity_level', 'severity', 'smoke_status'))
 
 ```
 ```{r}
