@@ -248,6 +248,7 @@ proc_freq(rawdata4[rawdata4$cancer == 1, ], vars)
 
 # rawdata5
 ##bug (not fixed)
+## a constant needed be changed when use new data!
 Anytime you use > you should check whether it is not missing in sas
 ```{r}
 # data rawdata5;
@@ -275,7 +276,7 @@ rawdata5 <- rawdata4 %>%
   mutate(time_death = as.numeric(date_of_death - `covid diag date`),
          time_death = ifelse(time_death >= -15 && time_death < 0, 0, 
                              ifelse(time_death < -15, NA, time_death)),
-         end_study = as.Date('2021-05-03')
+         end_study = as.Date('2021-05-03')                                       
          ) %>% 
   rowwise() %>% 
   mutate(t = ifelse(death == 1, time_death, 

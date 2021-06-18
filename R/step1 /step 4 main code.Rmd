@@ -769,12 +769,13 @@ stepAIC(survival_model_all, direction='backward', trace = FALSE)
 
 
 ```{r}
+dat <- final_dat %>% filter(age_gp != '>= 75')
 coxph(formula = Surv(t_30, death) ~ cancer + age_gp + gender + 
-    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w + 
+    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w +  age_gp:gender + 
     age_gp:race_gp + age_gp:n_comorbity_gp + age_gp:n_posi_comorb_gp + 
     age_gp:surgery_4w + gender:race_gp + gender:n_comorbity_gp + 
     race_gp:n_posi_comorb_gp + race_gp:surgery_4w + n_comorbity_gp:n_posi_comorb_gp + 
-    n_comorbity_gp:surgery_4w, data = final_dat_complete)
+    n_comorbity_gp:surgery_4w, data = dat)
 ```
 
 
@@ -796,10 +797,10 @@ res$coefficients
 
 ```{r}
 
-dat <- final_dat %>% 
-  select(cancer_type, chemo_4w, radiation_4w, survive_5yr_more, age_gp, gender, 
-         race_gp, n_comorbity, n_posi_comorb, surgery_4w)
-Hmisc::rcorr(dat)
+# dat <- final_dat %>% 
+#   select(cancer_type, chemo_4w, radiation_4w, survive_5yr_more, age_gp, gender, 
+#          race_gp, n_comorbity, n_posi_comorb, surgery_4w)
+# Hmisc::rcorr(dat)
 ```
 
 # need to check interaction?

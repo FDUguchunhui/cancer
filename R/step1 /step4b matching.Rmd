@@ -139,7 +139,7 @@ ggsurvplot(model_surv_3, data = final_dat_complete, conf.int = TRUE, ylim=c(0.7,
 
 
 
-
+# predictive model are different (confounder is much less important because association can also help to predict)
 
 
 
