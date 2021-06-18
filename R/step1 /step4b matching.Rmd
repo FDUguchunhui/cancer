@@ -8,6 +8,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(tidyverse)
+library(magrittr)
+library(survival)
+```
+
+
+```{r}
 load('data/final_dat.RData')
 ```
 
@@ -30,8 +37,29 @@ load('data/final_dat.RData')
 #match on cancer
 # mydata <- read.csv ("data/Before_matching.csv")
 
+
+comorbidity <- c('chronic_kidney_disease',
+               'chronic_obstructive_pulmonary',
+               'down_syndrome', 'solid_organ_transplant', 'obesity01', 'pregnancy',
+               'heart_failure', 'coronary_artery_disease', 'cardiomyopathies',
+               'sickle_cell_disease', 'smoke_yn', 'type_2_diabetes_mellitus',
+               'asthma', 'cerebrovascular', 'cystic_fibrosis')
+
+possible_comorbidity <- c('hypertension', 'other_immuno', 'liver_disease', 'dementia',
+                          'overweight01', 'pulmonary_fibrosis', 'thalassemia', 
+                          'type_1_diabetes_mellitus')
+
+
+selected_var <- c('cancer', 'gender', 'region', 'age_gp', 'race_gp', 
+                  comorbidity, possible_comorbidity,
+                  'surgery_4w', 't_30', 'death')
+
+selected_var_2 <- c('cancer', 'gender', 'region', 'age_gp', 'race_gp', 
+                  'n_comorbity', 'n_posi_comorb',
+                  'surgery_4w', 't_30', 'death')
+
 dat_for_matching <- final_dat %>% 
-  dplyr::select(patient_id, cancer, gender, region, age_gp, race_gp, n_comorbity_gp, n_posi_comorb_gp, t_30, death) %>% 
+  dplyr::select(any_of(selected_var_2)) %>% 
   drop_na()
 ```
 
@@ -39,18 +67,31 @@ dat_for_matching <- final_dat %>%
 #
 ```{r}
 # make a demo sample
-# dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
+dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
 ```
 
 ```{r}
+# need to refactoring coding
 # age or age_gp
 library(MatchIt)
-m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp + n_comorbity_gp + n_posi_comorb_gp) ^2, data = dat_for_matching, method = "nearest", ratio =1)
+m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp + 
+                             n_comorbity + n_posi_comorb + 
+  + surgery_4w) ^2, data = dat_for_matching, method = "nearest", ratio =1, caliper = 0.2)
+
+# m.out <-  matchit(cancer ~ gender + region + age_gp + race_gp + 
+#                               chronic_kidney_disease + chronic_obstructive_pulmonary
+#                             + down_syndrome + solid_organ_transplant + obesity01 + pregnancy + heart_failure +  coronary_artery_disease + cardiomyopathies + sickle_cell_disease + smoke_yn + type_2_diabetes_mellitus +
+#                               asthma + cerebrovascular + cystic_fibrosis +
+#                               
+# hypertension + other_immuno + liver_disease + dementia +
+# overweight01 + pulmonary_fibrosis + thalassemia + type_1_diabetes_mellitus
+#   + surgery_4w, data = dat_for_matching, method = "nearest", ratio =1, caliper = 0.2)
 ```
 
 
 ```{r}
-summary(m.out)
+options(max.print=10000)
+a <- summary(m.out, addlvariables = ~ (gender + region + age_gp + race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w)^2)
 ```
 
 ```{r}
@@ -67,17 +108,33 @@ love.plot(m.out, abs = TRUE, binary = 'std',
 
 
 ```{r}
-coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data, robust = TRUE, cluster = subclass)
+coxphfit <- coxph(Surv(t_30, death) ~ cancer + age_gp + gender + surgery_4w
+  + surgery_4w + cancer:age_gp + cancer:gender + cancer:surgery_4w, data = m.data, robust = TRUE, cluster = subclass)
 summary(coxphfit)
 ```
 
 ```{r}
-coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data)
+coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data, robust = TRUE, cluster = subclass)
+summary(coxphfit)
+```
+
+
+```{r}
+coxphfit <- coxph(Surv(t_30, death) ~ cancer + age_gp + gender + 
+    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w + age_gp:gender + 
+    age_gp:race_gp + age_gp:n_comorbity_gp + age_gp:n_posi_comorb_gp + 
+    age_gp:surgery_4w + gender:race_gp + gender:n_comorbity_gp + 
+    race_gp:n_posi_comorb_gp + race_gp:surgery_4w + n_comorbity_gp:n_posi_comorb_gp + 
+    n_comorbity_gp:surgery_4w, data = m.data, robust = TRUE, cluster = subclass)
 summary(coxphfit)
 ```
 
 
 
+```{r}
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp, data = m.data) 
+ggsurvplot(model_surv_3, data = final_dat_complete, conf.int = TRUE, ylim=c(0.7, 1))
+```
 
 
 

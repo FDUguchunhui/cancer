@@ -767,9 +767,20 @@ library(MASS)
 stepAIC(survival_model_all, direction='backward', trace = FALSE)
 ```
 
+
+```{r}
+coxph(formula = Surv(t_30, death) ~ cancer + age_gp + gender + 
+    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w + 
+    age_gp:race_gp + age_gp:n_comorbity_gp + age_gp:n_posi_comorb_gp + 
+    age_gp:surgery_4w + gender:race_gp + gender:n_comorbity_gp + 
+    race_gp:n_posi_comorb_gp + race_gp:surgery_4w + n_comorbity_gp:n_posi_comorb_gp + 
+    n_comorbity_gp:surgery_4w, data = final_dat_complete)
+```
+
+
 ```{r}
 library(survminer)
-model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp + gender + surgery_4w, data = final_dat_complete) 
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp, data = final_dat_complete) 
 ggsurvplot(model_surv_3, data = final_dat_complete, risk.table = 'absolute', pval = TRUE, surv.median.line = 'hv', ylim=c(0.7, 1))
 ```
 
@@ -844,8 +855,6 @@ splots[[2]] <- ggsurvplot(fit_aftermatch , data = matched_data, xlim=c(0,30),yli
 arrange_ggsurvplots(splots, print = TRUE,
   ncol = 2, nrow = 1, risk.table.height = 0.4,ggtheme = theme_minimal())
 ```
-
-
 
 
 
