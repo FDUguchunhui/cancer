@@ -29,15 +29,18 @@ proc_freq <- function(data, vars) {
 ```
 
 
-```{r}
-proc_freq(rawdata2, c('chronic_kidney_disease', 'chronic_obstructive_pulmonary', 'down_syndrome', 'solid_organ_transplant',                              'obesity01', 'pregnancy', 'heart_failure', 'coronary_artery_disease', 'cardiomyopathies', 'sickle_cell_disease', 'smoke_yn', 'type_2_diabetes_mellitus'))
-```
+<!-- ```{r} -->
+<!-- proc_freq(rawdata2, c('chronic_kidney_disease', 'chronic_obstructive_pulmonary', 'down_syndrome', 'solid_organ_transplant',                              'obesity01', 'pregnancy', 'heart_failure', 'coronary_artery_disease', 'cardiomyopathies', 'sickle_cell_disease', 'smoke_yn', 'type_2_diabetes_mellitus')) -->
+<!-- ``` -->
 
+
+# directly use individual comorbidities but n_comorbidity is still wanted
 # rawdata3
-## bug??
+# check: charlson comorbidity index
+## not bug (?) but logic weird
 ```{r}
 # data rawdata3; set rawdata2;
-# N_comorbity=sum(Chronic_Kidney_Disease,
+# n_comorbidity=sum(Chronic_Kidney_Disease,
 # Chronic_Obstructive_Pulmonary,Down_Syndrome,     # bug? sum will ignore missing value
 # Solid_Organ_Transplant,
 # obesity01,pregnancy,
@@ -49,23 +52,33 @@ proc_freq(rawdata2, c('chronic_kidney_disease', 'chronic_obstructive_pulmonary',
 # Hypertension,Other_Immuno,Liver_Disease,Dementia,
 # overweight01,Pulmonary_Fibrosis,Thalassemia,Type_1_Diabetes_Mellitus);
 
-rawdata3 <- rawdata2 %>% 
-  rowwise() %>% 
-  mutate(n_comorbity = sum(chronic_kidney_disease, chronic_obstructive_pulmonary, down_syndrome, solid_organ_transplant,                              obesity01, pregnancy, heart_failure, coronary_artery_disease, cardiomyopathies, sickle_cell_disease, smoke_yn, type_2_diabetes_mellitus, na.rm = TRUE),
+rawdata3 <- rawdata2 %>%
+  rowwise() %>%
+  mutate(n_comorbidity = sum(any_malignancy, hiv, renal, hemiplegia, diabetes_with_cc,
+                           diabetes_without_cc, severe_liver, mild_liver, 
+                           peptic_ulcer, rheumatic, chronic_pulmonary, cerebrovascular,
+                           dementia, peripheral_vascular, heart_failure,
+                           myocardial_infarction, obesity, cardiovascular,
+                           smoking_infarction,
+                           wheelchair,
+                           dysphagia, na.rm = TRUE),
+         charlson_index = (cardiovascular + myocardial_infarction + heart_failure + peripheral_vascular + cerebrovascular +
+           dementia + chronic_pulmonary + rheumatic + peptic_ulcer + mild_liver + diabetes_without_cc) +
+           (hemiplegia + renal + diabetes_with_cc) + 3 * (severe_liver) + 6 * (hiv))
 
-        n_posi_comorb=sum(asthma,cerebrovascular,cystic_fibrosis,
-hypertension,other_immuno,liver_disease,dementia,
-overweight01,pulmonary_fibrosis,thalassemia,type_1_diabetes_mellitus, na.rm = TRUE))
+#         n_posi_comorb=sum(asthma,cerebrovascular,cystic_fibrosis,
+# hypertension,other_immuno,liver_disease,dementia,
+# overweight01,pulmonary_fibrosis,thalassemia,type_1_diabetes_mellitus, na.rm = TRUE)
 ```
 
 
 ```{r}
-# if N_comorbity>=4 then N_comorbity_gp=">=4";
-# else if N_comorbity=3 then N_comorbity_gp="3";
-# else if N_comorbity=2 then N_comorbity_gp="2"; 
-# else if N_comorbity=1 then N_comorbity_gp="1";
-# else if N_comorbity~=. then N_comorbity_gp="0";
-# 
+# if n_comorbidity>=4 then n_comorbidity_gp=">=4";
+# else if n_comorbidity=3 then n_comorbidity_gp="3";
+# else if n_comorbidity=2 then n_comorbidity_gp="2";
+# else if n_comorbidity=1 then n_comorbidity_gp="1";
+# else if n_comorbidity~=. then n_comorbidity_gp="0";
+#
 # if N_Posi_Comorb>=4 then N_Posi_Comorb_gp=">=4";
 # else if N_Posi_Comorb=3 then N_Posi_Comorb_gp="3";
 # else if N_Posi_Comorb=2 then N_Posi_Comorb_gp="2";
@@ -73,35 +86,36 @@ overweight01,pulmonary_fibrosis,thalassemia,type_1_diabetes_mellitus, na.rm = TR
 # else if N_Posi_Comorb~=. then N_Posi_Comorb_gp="0";
 
 
-# create categorized n_comorbity variable and n_posi_comorb
-rawdata3 <- rawdata3 %>% 
-  # rowwise() %>% 
-  mutate(n_comorbity_gp = ifelse(is.na(n_comorbity), NA,  # treat missing as 0 ? could be bug?
-                                       ifelse(n_comorbity >= 4, '>=4',
-                                              ifelse(n_comorbity == 3, '3',
-                                                     ifelse(n_comorbity == 2, '2',
-                                                            ifelse(n_comorbity == 1, '1', '0')
-                                                            )
-                                                     )
-                                              )
-                                 ),
-         n_posi_comorb_gp = ifelse(is.na(n_posi_comorb), NA, # treat missing as 0 ? could be bug?
-                                       ifelse(n_posi_comorb >= 4, '>=4',
-                                              ifelse(n_posi_comorb == 3, '3',
-                                                     ifelse(n_posi_comorb == 2, '2',
-                                                            ifelse(n_posi_comorb == 1, '1', '0')
-                                                            )
-                                                     )
-                                              )
-                                 )
+# create categorized n_comorbidity variable and n_posi_comorb
+rawdata3 <- rawdata3 %>%
+  # rowwise() %>%
+  mutate(n_comorbidity_gp = ifelse(n_comorbidity >= 4, '>=4',
+                                        ifelse(n_comorbidity == 3, '3',
+                                               ifelse(n_comorbidity == 2, '2',
+                                                      ifelse(n_comorbidity == 1, '1', '0')
+                                                      )
+                                               )
+                                        ),
+                                 
+         charlson_index_gp = ifelse(charlson_index >= 4, '>=4',
+                                        ifelse(charlson_index == 3, '3',
+                                               ifelse(charlson_index == 2, '2',
+                                                      ifelse(charlson_index == 1, '1', '0')
+                                                      )
+                                               )
+                                        ),
          )
 ```
 
+
+
+## new method to calculate treatment variables
+# definition of systemic treatment ?
 #bug (have been fixed)
 ```{r}
 # if MA_Cytotoxic_4w=1 or PS_Cytotoxic_4w=1 or PR_Cytotoxic_4w=1 then cytotoxic_4wk="Y";
 # else cytotoxic_4wk="N";
-# 
+#
 # if MA_Non_Cytotoxic_4w=1 or PS_Non_Cytotoxic_4w=1 or PR_Non_Cytotoxic_4w=1 then Nocytotoxic_4wk="Y";
 # else Nocytotoxic_4wk="N";
 #
@@ -110,58 +124,57 @@ rawdata3 <- rawdata3 %>%
 # if cytotoxic_4wk="Y" then cytotoxic4wk="a. cytotoxic  ";                         # extra whitespace
 
 
-# else if Nocytotoxic_4wk="Y" then cytotoxic4wk="b. no cytotoxic";                 
+# else if Nocytotoxic_4wk="Y" then cytotoxic4wk="b. no cytotoxic";
 # else cytotoxic4wk="c. no chemo drug";
-# 
+#
 # *combine cytotoxic drug;
 # if cytotoxic4wk in ("a. cytotoxic","b. no cytotoxi") then chemo_4w=1;            # variable value not match
 # else if cytotoxic4wk="c. no chemo dr" then chemo_4w=0;                           # variablke value not match (c. no chemo dr)
-# 
+#
 # run;
 
 
-rawdata3 <- rawdata3 %>% 
-  rowwise() %>% 
+# rawdata3 <- rawdata3 %>%
+#   rowwise() %>%
+#   # if NA is encountered in condition statement, NA will be return directly
+#   mutate(cytotoxic_4wk = ifelse(ma_cytotoxic_4w == 1 || ps_cytotoxic_4w == 1 || pr_cytotoxic_4w == 1, 'Y', 'N'),
+#          nocytotoxic_4wk = ifelse(ma_non_cytotoxic_4w == 1 || ps_non_cytotoxic_4w == 1 || pr_non_cytotoxic_4w == 1, 'Y', 'N'),
+#          # cytotoxic4wk = ifelse(cytotoxic_4wk == 'Y', 'a. cytotoxic',
+#          #                       ifelse(nocytotoxic_4wk == 'Y', 'b. no cytotoxic', 'c. no chemo drug')),
+#          # combine cytotoxic drug
+#          chemo_4w = ifelse(cytotoxic_4wk == 'Y' || nocytotoxic_4wk == 'Y', 1,
+#                            ifelse(cytotoxic_4wk == 'N' && cytotoxic_4wk == 'N', 0, NA))
+# 
+#          )
+
+
+rawdata3 <- rawdata3 %>%
+  rowwise() %>%
   # if NA is encountered in condition statement, NA will be return directly
-  mutate(cytotoxic_4wk = ifelse(ma_cytotoxic_4w == 1 || ps_cytotoxic_4w == 1 || pr_cytotoxic_4w == 1, 'Y', 'N'),
-         nocytotoxic_4wk = ifelse(ma_non_cytotoxic_4w == 1 || ps_non_cytotoxic_4w == 1 || pr_non_cytotoxic_4w == 1, 'Y', 'N'),
-         cytotoxic4wk = ifelse(cytotoxic_4wk == 'Y', 'a. cytotoxic', 
-                               ifelse(nocytotoxic_4wk == 'Y', 'b. no cytotoxic', 'c. no chemo drug')),
-         # combine cytotoxic drug
-         chemo_4w = ifelse(cytotoxic_4wk == 'Y' || nocytotoxic_4wk == 'Y', 1, 
-                           ifelse(cytotoxic_4wk == 'N' && cytotoxic_4wk == 'N', 0, NA))
+  mutate(chemotherapy_1_month = ifelse(chemotherapy_diag_1_month == 1 || chemotherapy_proc_1_month == 1, 1, 0),
+         chemotherapy_3_month = ifelse(chemotherapy_diag_3_month == 1 || chemotherapy_proc_3_month == 1, 1, 0),
+         chemotherapy_6_month = ifelse(chemotherapy_diag_6_month == 1 || chemotherapy_proc_6_month == 1, 1, 0),
          
-         )
+         immunotherapy_1_month = immunotherapy_diag_1_month,
+         immunotherapy_3_month = immunotherapy_diag_3_month,
+         immunotherapy_6_month = immunotherapy_diag_6_month,
+         
+         systemic_1_month = ifelse(chemotherapy_1_month == 1 || immunotherapy_1_month == 1, 1, 0),
+         systemic_3_month = ifelse(chemotherapy_3_month == 1 || immunotherapy_3_month == 1, 1, 0),
+         systemic_6_month = ifelse(chemotherapy_6_month == 1 || immunotherapy_6_month == 1, 1, 0),
+         
+         radiation_1_month = ifelse(radiation_diag_1_month == 1 || radiation_proc_1_month == 1, 1, 0),
+         radiation_3_month = ifelse(radiation_diag_3_month == 1 || radiation_proc_3_month == 1, 1, 0),
+         radiation_6_month = ifelse(radiation_diag_6_month == 1 || radiation_proc_6_month == 1, 1, 0),
+         
+         treatment_remdesivir = ifelse(treatment_adm_remdesivir == 1 || treatment_ps_lopinavir_or_ritonavir == 1, 1, 0),
+         treatment_lopinavir_or_ritonavir = ifelse(treatment_ps_lopinavir_or_ritonavir == 1 || treatment_adm_lopinavir_or_ritonavir == 1, 1, 0),
+         treatment_bamlanivimab = ifelse(treatment_ps_bamlanivimab == 1 || treatment_adm_bamlanivimab == 1 || treatment_bamlanivimab_proc, 1, 0),
+         
+         treatment_casirivimab = ifelse(treatment_adm_casirivimab == 1 || treatment_ps_casirivimab == 1 || treatment_casirivimab_proc == 1, 1, 0),
+         treatment_tocilizumab = ifelse(treatment_adm_tocilizumab == 1 || treatment_ps_tocilizumab == 1 || treatment_tocilizumab_proc, 1, 0),
+         treatment_hydroxychloroquine = ifelse(treatment_adm_hydroxychloroquine == 1 || treatment_ps_hydroxychloroquine == 1, 1, 0))
 
-```
-
-
-
-proc freq data=rawdata3;
-tables N_comorbity_gp  N_Posi_Comorb_gp cytotoxic_4wk
-Nocytotoxic_4wk cytotoxic4wk chemo_4w;
-where cancer=1;
-run;
-/*
-proc freq data=rawdata2;
-tables       Chronic_Kidney_Disease 
-Chronic_Obstructive_Pulmonary Down_Syndrome 
-Solid_Organ_Transplant 
-obesity01 pregnancy 
-Heart_Failure Coronary_Artery_Disease  
-Cardiomyopathies 
-Sickle_Cell_Disease smoke_yn Type_2_Diabetes_Mellitus
-Asthma Cerebrovascular Cystic_Fibrosis 
-Hypertension Other_Immuno Liver_Disease Dementia 
-overweight01 Pulmonary_Fibrosis Thalassemia Type_1_Diabetes_Mellitus
-;
-run;*/
-```{r}
-# vars <- c('n_comorbity_gp', 'n_posi_comorb_gp', 'cytotoxic_4wk', 'nocytotoxic_4wk', 'cytotoxic4wk', 'chemo_4w')
-# for (var in vars) {
-#   print(var)
-#   print(freq(x = rawdata3[rawdata3$cancer == 0, ][[var]]))
-# }
 ```
 
 
@@ -203,7 +216,7 @@ rawdata4 <- rawdata4 %>%
   rowwise() %>% 
   mutate(
          age_at_cancer = (cancer_year - birth_yr),
-         duration = as.numeric(`covid diag date` - cancer_date)/365.25,
+         duration = as.numeric(covid_pcr_date - cancer_date)/365.25,
 
          survive_5yr_more = ifelse(duration > 5, 1,
                                    ifelse(duration >=0 && duration <=5, 0, NA)),
@@ -219,15 +232,15 @@ rawdata4 <- rawdata4 %>%
 ```
 
 
-
+# unify the age categorization standard
 ```{r}
 rawdata4 <- rawdata4 %>% 
   # rowwise() %>% 
-  mutate(age_cancer_gp = ifelse(age_at_cancer >= 0 && age_at_cancer < 20, '0-20', 
-                                ifelse(age_at_cancer >= 20 && age_at_cancer < 40, '20-40', 
-                                       ifelse(age_at_cancer >= 40 && age_at_cancer < 60, '40-60',
-                                              ifelse(age_at_cancer >= 60 && age_at_cancer < 80, '60-80',
-                                                     ifelse(age_at_cancer >= 80, '>=80', NA))))))
+  mutate(age_cancer_gp = ifelse(age_at_cancer >= 0 && age_at_cancer < 18, '0-18', 
+                                ifelse(age_at_cancer >= 18 && age_at_cancer < 50, '18-50', 
+                                       ifelse(age_at_cancer >= 50 && age_at_cancer < 65, '50-65',
+                                              ifelse(age_at_cancer >= 65 && age_at_cancer < 75, '65-75',
+                                                     ifelse(age_at_cancer >= 75, '>=75', NA))))))
 ```
 
 
@@ -237,7 +250,7 @@ rawdata4 <- rawdata4 %>%
 # where cancer=1;
 # run;
 
-vars <- c('age_cancer_gp','radiation_4w')
+vars <- c('age_cancer_gp','radiation_diag_6_month')
 proc_freq(rawdata4[rawdata4$cancer == 1, ], vars)
 
 ```
@@ -247,8 +260,9 @@ proc_freq(rawdata4[rawdata4$cancer == 1, ], vars)
 
 
 # rawdata5
-##bug (not fixed)
-## a constant needed be changed when use new data!
+## survival data not accurate
+##bug (not fixed) 
+## a constant needed be changed when use new data (check whether the data is the version of the database)!
 Anytime you use > you should check whether it is not missing in sas
 ```{r}
 # data rawdata5;
@@ -276,7 +290,7 @@ rawdata5 <- rawdata4 %>%
   mutate(time_death = as.numeric(date_of_death - `covid diag date`),
          time_death = ifelse(time_death >= -15 && time_death < 0, 0, 
                              ifelse(time_death < -15, NA, time_death)),
-         end_study = as.Date('2021-05-03')                                       
+         end_study = as.Date('2021-01-28')                                       
          ) %>% 
   rowwise() %>% 
   mutate(t = ifelse(death == 1, time_death, 
@@ -286,6 +300,25 @@ rawdata5 <- rawdata4 %>%
          death = ifelse(death == 1 && time_death > 30, 0, death),
          t_30 = min(t, 30))
 ```
+
+## create death month instead of days
+```{r}
+library(lubridate)
+rawdata5 <- rawdata5 %>% 
+  # rowwise() %>% 
+  mutate(death_month = month(date_of_death),
+         covid_month = month(`covid diag date`),
+         month_to_death = death_month - covid_month,
+         # if death happen before the month of diag then treated as missing
+         death_on_month_0 = ifelse(is.na(month_to_death), 0,
+                                   ifelse(month_to_death == 0, 1, 0))
+         # not need to calculate survival more than 1month 
+         # month_to_death = ifelse(month_to_death < 0, NA, month_to_death),
+         
+         )
+
+```
+
 
 
 ```{r}
@@ -323,49 +356,51 @@ proc_freq(rawdata4, c('death'))
 proc_freq(rawdata5, c('death'))
 ```
 
-
-# rawdata6
-##typo! (has been fixed)
+## no need to calculate cancer type (?)
 ```{r}
-# data rawdata6;
-# set rawdata5;
-# cancer_2digit=substr(Cancer_dx_code,1,3);
-# 
-# if cancer_2digit
-# in ("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20",
-#     "C21", "C22", "C23", "C24", "C25", "C26", "C30", "C31", "C32", "C33", "C34",
-#     "C37", "C38", "C39", "C40", "C41", "C43", "C45", "C46", "C47", "C48", "C49",
-#     "C50", "C51", "C52", "C53", "C54", "C55", "C56", "C57", "C58", "C60", "C61",
-#     "C62", "C63", "C64", "C65", "C66", "C67", "C68", "C69", "C70", "C71", "C72",
-#     "C73", "C74", "C75" ) then cancer_type="a. solid    ";                         # unnecessary trailing whitespace
-# else if cancer_2digit in ("C81", "C82", "C83", "C84","C85", "C88", "C90", "C91",
-#   "C92", "C93", "C94", "C95", "C96") then cancer_type="b. liquid";
-# else if cancer_2digit="C76" then cancer_type="c.Multitype";
-# if Region="Other/Unknown" then Region="z: Other/Unknown";
-# run;
-#  
-
-solid_cancer_codes <- c("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20",
-    "C21", "C22", "C23", "C24", "C25", "C26", "C30", "C31", "C32", "C33", "C34",
-    "C37", "C38", "C39", "C40", "C41", "C43", "C45", "C46", "C47", "C48", "C49",
-    "C50", "C51", "C52", "C53", "C54", "C55", "C56", "C57", "C58", "C60", "C61",
-    "C62", "C63", "C64", "C65", "C66", "C67", "C68", "C69", "C70", "C71", "C72",
-    "C73", "C74", "C75" )
-
-liquid_cancer_codes <- c("C81", "C82", "C83", "C84","C85", "C88", "C90", "C91",
-   "C92", "C93", "C94", "C95", "C96")
-
-rawdata6 <- rawdata5 %>% 
-  rowwise() %>% 
-  mutate(cancer_2digit = substr(cancer_dx_code, 1, 3),
-         cancer_type = ifelse(cancer_2digit %in% solid_cancer_codes, 'a. solid', 
-                              ifelse(cancer_2digit %in% liquid_cancer_codes, 'b. liquid',
-                                     ifelse(cancer_2digit == 'C76', 'c.Multitype', NA))),
-         region = ifelse(region == 'Other/Unknown', NA, region)
-         
-         )
-
+rawdata6 <- rawdata5
 ```
+
+<!-- # rawdata6 -->
+<!-- ##typo! (has been fixed) -->
+<!-- ```{r} -->
+<!-- # data rawdata6; -->
+<!-- # set rawdata5; -->
+<!-- # cancer_2digit=substr(Cancer_dx_code,1,3); -->
+<!-- #  -->
+<!-- # if cancer_2digit -->
+<!-- # in ("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", -->
+<!-- #     "C21", "C22", "C23", "C24", "C25", "C26", "C30", "C31", "C32", "C33", "C34", -->
+<!-- #     "C37", "C38", "C39", "C40", "C41", "C43", "C45", "C46", "C47", "C48", "C49", -->
+<!-- #     "C50", "C51", "C52", "C53", "C54", "C55", "C56", "C57", "C58", "C60", "C61", -->
+<!-- #     "C62", "C63", "C64", "C65", "C66", "C67", "C68", "C69", "C70", "C71", "C72", -->
+<!-- #     "C73", "C74", "C75" ) then cancer_type="a. solid    ";                         # unnecessary trailing whitespace -->
+<!-- # else if cancer_2digit in ("C81", "C82", "C83", "C84","C85", "C88", "C90", "C91", -->
+<!-- #   "C92", "C93", "C94", "C95", "C96") then cancer_type="b. liquid"; -->
+<!-- # else if cancer_2digit="C76" then cancer_type="c.Multitype"; -->
+<!-- # if Region="Other/Unknown" then Region="z: Other/Unknown"; -->
+<!-- # run; -->
+<!-- #   -->
+
+<!-- solid_cancer_codes <- c("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", -->
+<!--     "C21", "C22", "C23", "C24", "C25", "C26", "C30", "C31", "C32", "C33", "C34", -->
+<!--     "C37", "C38", "C39", "C40", "C41", "C43", "C45", "C46", "C47", "C48", "C49", -->
+<!--     "C50", "C51", "C52", "C53", "C54", "C55", "C56", "C57", "C58", "C60", "C61", -->
+<!--     "C62", "C63", "C64", "C65", "C66", "C67", "C68", "C69", "C70", "C71", "C72", -->
+<!--     "C73", "C74", "C75" ) -->
+
+<!-- liquid_cancer_codes <- c("C81", "C82", "C83", "C84","C85", "C88", "C90", "C91", -->
+<!--    "C92", "C93", "C94", "C95", "C96") -->
+
+<!-- rawdata6 <- rawdata5 %>%  -->
+<!--   rowwise() %>%  -->
+<!--   mutate(cancer_2digit = substr(cancer_dx_code, 1, 3), -->
+<!--          cancer_type = ifelse(cancer_2digit %in% solid_cancer_codes, 'a. solid',  -->
+<!--                               ifelse(cancer_2digit %in% liquid_cancer_codes, 'b. liquid', -->
+<!--                                      ifelse(cancer_2digit == 'C76', 'c.Multitype', NA))), -->
+<!--          ) -->
+
+<!-- ``` -->
 
 ```{r}
 # proc freq data=rawdata6;
@@ -385,7 +420,9 @@ rawdata6 <- rawdata5 %>%
 # run;
 
 
-proc_freq(rawdata6, c('death', 'inpatient', 'icu', 'ventilation'))
+proc_freq(rawdata6, c('death', 
+                      # 'inpatient',
+                      'icu', 'ventilation'))
 ```
 # rawdata7
 ## bug!!!
@@ -405,7 +442,7 @@ proc_freq(rawdata6, c('death', 'inpatient', 'icu', 'ventilation'))
 rawdata7 <- rawdata6 %>% 
   rowwise() %>% 
   mutate(severity_level = ifelse(death == 0 && inpatient == 0 && icu == 0 && ventilation == 0, 0,
-                                 ifelse(death == 0 && inpatient == 1 && icu == 0 && ventilation == 0, 1, 
+                                 ifelse(death == 0 && inpatient == 1 && icu == 0 && ventilation == 0, 1,
                                         ifelse(death == 1, 3, 2)))
          ) %>% 
   filter(!is.na(death)) %>% 
@@ -418,8 +455,8 @@ rawdata7 <- rawdata6 %>%
 rawdata7 <- rawdata7 %>% 
   mutate(severity_level = factor(severity_level, levels=c('0', '1', '2', '3')),
          age_gp = factor(age_gp, levels=c('0-18', '18-50', '50-65', '65-75', '>= 75')),
-         n_comorbity_gp = factor(n_comorbity_gp, levels = c('0', '1', '2', '3', '>=4')),
-         n_posi_comorb_gp = factor(n_posi_comorb_gp, levels = c('0', '1', '2', '3', '>=4'))
+         n_comorbidity_gp = factor(n_comorbidity_gp, levels = c('0', '1', '2', '3', '>=4')),
+         charlson_index_gp = factor(charlson_index_gp, levels = c('0', '1', '2', '3', '>=4'))
          )
 ```
 
@@ -429,7 +466,7 @@ rawdata7 <- rawdata7 %>%
 # tables severity_level severity smoke_status;
 # run;
 
-proc_freq(rawdata7, c('death', 'severity_level', 'severity', 'smoke_status'))
+proc_freq(rawdata7, c('death', 'severity_level', 'severity'))
 ```
 
 # B_rawdata
@@ -439,26 +476,11 @@ proc_freq(rawdata7, c('death', 'severity_level', 'severity', 'smoke_status'))
 # where age>=18;
 # run;
 
-main_data <- rawdata7 %>% 
+final_dat <- rawdata7 %>% 
   filter(age >= 18) %>% 
   droplevels()
 
-save(main_data, file = 'data/main_data.RData')
+save(final_dat, file = 'data/final_dat.RData')
 ```
 
-```{r}
-# proc_freq(rawdata, c('death', 'severity_level', 'severity', 'smoke_status'))
-
-```
-```{r}
-# *check how many missings in obesity;
-# proc freq data=rawdata7;
-# tables obesity01 overweight01 N_comorbity_gp N_Posi_Comorb_gp;
-# *where BMI>0 and BMI<18.5 and age_in_month=240;
-# where cancer=0 and age>=18;
-# run;
-
-
-proc_freq(rawdata7, c('smoke_yn', 'obese_overweight', 'obesity01', 'overweight01', 'n_comorbity_gp', 'n_posi_comorb_gp'))
-```
 

@@ -38,28 +38,23 @@ load('data/final_dat.RData')
 # mydata <- read.csv ("data/Before_matching.csv")
 
 
-comorbidity <- c('chronic_kidney_disease',
-               'chronic_obstructive_pulmonary',
-               'down_syndrome', 'solid_organ_transplant', 'obesity01', 'pregnancy',
-               'heart_failure', 'coronary_artery_disease', 'cardiomyopathies',
-               'sickle_cell_disease', 'smoke_yn', 'type_2_diabetes_mellitus',
-               'asthma', 'cerebrovascular', 'cystic_fibrosis')
+comorbidity <- c('charlson_index', 'n_comorbidity', 'any_malignancy', 'hiv', 'renal', 'hemiplegia', 'diabetes_with_cc',
+              'diabetes_without_cc', 'severe_liver', 'mild_liver', 'peptic_ulcer', 
+              'rheumatic', 'chronic_pulmonary', 'cerebrovascular', 'dementia',
+              'peripheral_vascular', 'heart_failure', 'myocardial_infarction', 
+              'obesity', 'cardiovascular', 'smoking_infarction', 'wheelchair',
+              'dysphagia')
 
-possible_comorbidity <- c('hypertension', 'other_immuno', 'liver_disease', 'dementia',
-                          'overweight01', 'pulmonary_fibrosis', 'thalassemia', 
-                          'type_1_diabetes_mellitus')
+
 
 
 selected_var <- c('cancer', 'gender', 'region', 'age_gp', 'race_gp', 
-                  comorbidity, possible_comorbidity,
-                  'surgery_4w', 't_30', 'death')
+                  comorbidity, 
+                   't_30', 'death', 'inpatient', 'ventilation', 'icu', 'death_on_month_0')
 
-selected_var_2 <- c('cancer', 'gender', 'region', 'age_gp', 'race_gp', 
-                  'n_comorbity', 'n_posi_comorb',
-                  'surgery_4w', 't_30', 'death')
 
 dat_for_matching <- final_dat %>% 
-  dplyr::select(any_of(selected_var_2)) %>% 
+  dplyr::select(any_of(selected_var)) %>% 
   drop_na()
 ```
 
@@ -67,7 +62,7 @@ dat_for_matching <- final_dat %>%
 #
 ```{r}
 # make a demo sample
-dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
+# dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
 ```
 
 ```{r}
@@ -75,8 +70,8 @@ dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, repl
 # age or age_gp
 library(MatchIt)
 m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp + 
-                             n_comorbity + n_posi_comorb + 
-  + surgery_4w) ^2, data = dat_for_matching, method = "nearest", ratio =1, caliper = 0.2)
+                            charlson_index) ^ 2, 
+                  data = dat_for_matching, method = "nearest", ratio = 1)
 
 # m.out <-  matchit(cancer ~ gender + region + age_gp + race_gp + 
 #                               chronic_kidney_disease + chronic_obstructive_pulmonary
@@ -91,7 +86,13 @@ m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp +
 
 ```{r}
 options(max.print=10000)
-a <- summary(m.out, addlvariables = ~ (gender + region + age_gp + race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w)^2)
+summary(m.out,  addlvariables = ~ (gender + region + age_gp + race_gp + 
+                            charlson_index) ^ 2)
+             # addlvariables = ~ (gender + region + age_gp + race_gp + any_malignancy + hiv + renal + hemiplegia + diabetes_with_cc +
+             #                diabetes_without_cc + severe_liver + mild_liver + peptic_ulcer + 
+             #                rheumatic + chronic_pulmonary + cerebrovascular + dementia +
+             #                peripheral_vascular + heart_failure + myocardial_infarction + 
+             #                obesity + cardiovascular + smoking_infarction + wheelchair + dysphagia)^2)
 ```
 
 ```{r}
@@ -108,25 +109,55 @@ love.plot(m.out, abs = TRUE, binary = 'std',
 
 
 ```{r}
-coxphfit <- coxph(Surv(t_30, death) ~ cancer + age_gp + gender + surgery_4w
-  + surgery_4w + cancer:age_gp + cancer:gender + cancer:surgery_4w, data = m.data, robust = TRUE, cluster = subclass)
-summary(coxphfit)
-```
-
-```{r}
 coxphfit <- coxph(Surv(t_30, death) ~ cancer, data = m.data, robust = TRUE, cluster = subclass)
 summary(coxphfit)
 ```
 
 
 ```{r}
-coxphfit <- coxph(Surv(t_30, death) ~ cancer + age_gp + gender + 
-    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w + age_gp:gender + 
-    age_gp:race_gp + age_gp:n_comorbity_gp + age_gp:n_posi_comorb_gp + 
-    age_gp:surgery_4w + gender:race_gp + gender:n_comorbity_gp + 
-    race_gp:n_posi_comorb_gp + race_gp:surgery_4w + n_comorbity_gp:n_posi_comorb_gp + 
-    n_comorbity_gp:surgery_4w, data = m.data, robust = TRUE, cluster = subclass)
-summary(coxphfit)
+library(lmtest)
+library(sandwich)
+model_PSM_death_same_month <- glm(death_on_month_0 ~ cancer, data = m.data, family = binomial(link = "logit"))
+(model_PSM_death_same_month_coef <- coeftest(model_PSM_death_same_month, vcov. = vcovCL, cluster = ~subclass))
+t_death <- as.table(model_PSM_death_same_month_coef[2, ])
+```
+
+
+```{r}
+model_PSM_inpatient <- glm(inpatient ~ cancer, data =  m.data, family = binomial(link = "logit"))
+(model_PSM_inpatient_coef <- coeftest(model_PSM_inpatient, vcov. = vcovCL, cluster = ~subclass))
+t_inpatient <- as.table(model_PSM_inpatient_coef)[2, ]
+```
+
+
+```{r}
+model_PSM_ventilation <- glm(ventilation ~ cancer, data =  m.data, family = binomial(link = "logit"))
+(model_PSM_ventilation_coef <- coeftest(model_PSM_ventilation, vcov. = vcovCL, cluster = ~subclass))
+t_ventilation <- as.table(model_PSM_ventilation_coef[2, ])
+```
+
+
+```{r}
+model_PSM_icu <- glm(icu ~ cancer, data =  m.data, family = binomial(link = "logit"))
+(model_PSM_icu_coef <- coeftest(model_PSM_icu, vcov. = vcovCL, cluster = ~subclass))
+t_icu <- as.table(model_PSM_icu_coef)[2, ]
+```
+
+```{r}
+options(digits=3)
+(t <- rbind(t_inpatient, t_ventilation, t_icu, t_death))
+```
+
+
+```{r}
+t_model <- cbind(ts, t)
+(t_model <- t_model[, c(1, 4, 5, 8)])
+```
+
+```{r}
+# t_model <- rbind(colnames(t_model), t_model)
+# colnames(t_model) <- c('simple logistic regression', '', 'logistic regression with PSM', '')
+t_model
 ```
 
 
@@ -134,6 +165,15 @@ summary(coxphfit)
 ```{r}
 model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp, data = m.data) 
 ggsurvplot(model_surv_3, data = final_dat_complete, conf.int = TRUE, ylim=c(0.7, 1))
+```
+```{r}
+var_list <- c('age_gp', 'gender', 'race_gp', 'region', 'charlson_index')
+
+table_baseline_before <- descriptive_table(var_list, 'cancer', final_dat) %>% select(-c(Total)) 
+table_baseline_after <- descriptive_table(var_list, 'cancer', m.data) %>% select(-c(variable, level, Total))
+
+
+cbind(table_baseline_before, table_baseline_after)
 ```
 
 

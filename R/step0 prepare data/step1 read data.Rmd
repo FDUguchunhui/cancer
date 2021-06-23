@@ -14,182 +14,262 @@ library(readxl)
 library(summarytools)
 ```
 
-<!-- ```{r} -->
-<!-- # libname B "Z:\8 GQ Zhang group"; -->
-<!-- # /*PROC IMPORT OUT= B.RAWDATA_old -->
-<!-- #             DATAFILE= "Z:\8 GQ Zhang group\STEP0 prepare data\Cancer_cov -->
-<!-- # id_20210315.xlsx" -->
-<!-- #             DBMS=EXCEL REPLACE; -->
-<!-- #      RANGE="Cancer_covid_20210315$"; -->
-<!-- #      GETNAMES=YES; -->
-<!-- #      MIXED=NO; -->
-<!-- #      SCANTEXT=YES; -->
-<!-- #      USEDATE=YES; -->
-<!-- #      SCANTIME=YES; -->
-<!-- # RUN; -->
-
-<!-- # read the raw data -->
-<!-- rawdata_old_buffer <- read_excel('data/Cancer_covid_20210315.xlsx') -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- rawdata_old <- rawdata_old_buffer -->
-<!-- ``` -->
-
-
-<!-- ```{r} -->
-<!-- colnames(rawdata_old) <- tolower(colnames(rawdata_old)) -->
-<!-- ``` -->
-
-
-<!-- ```{r} -->
-<!-- # SAS is case-insensitive in variable names -->
-<!-- # for convenience, convert all variable names to lower case -->
-<!-- head(rawdata_old) -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-
-<!-- ``` -->
-
-
-
-<!-- ```{r} -->
-<!-- # delete unused columns -->
-<!-- rawdata_old <- rawdata_old %>%  -->
-<!--   select(-tolower(c('MA_Cytotoxic_4w', 'MA_Non_Cytotoxic_4w', 'PR_Cytotoxic_4w', 'PR_Non_Cytotoxic_4w', 'PS_Cytotoxic_4w', 'PS_Non_Cytotoxic_4w', 'Radiation_4w', 'Surgery_4w'))) -->
-<!-- ``` -->
-
-
-
-<!-- ```{r} -->
-<!-- recent_buffer <- read_excel('data/Cancer_covid_20210319_addtional.xlsx') -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- recent <- recent_buffer  -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- colnames(recent) <- tolower(colnames(recent)) -->
-<!-- ``` -->
-
-
-<!-- ```{r} -->
-<!-- head(recent) -->
-<!-- ``` -->
-
-
-
-<!-- ```{r} -->
-
-<!-- ``` -->
-
-
-
-<!-- ```{r} -->
-<!-- # proc sort data=B.rawdata_old; by Patient_ID; run; -->
-<!-- # proc sort data=B.recent; by Patient_ID; run; -->
-
-
-<!-- # the SAS code default order is ascending so we use ascending order here too -->
-<!-- rawdata_old <- rawdata_old %>% arrange(patient_id) -->
-<!-- recent <- recent %>% arrange(patient_id) -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- # data B.rawdata0; -->
-<!-- # merge B.rawdata_old(in=a) B.recent; -->
-<!-- # by Patient_ID; -->
-<!-- # if a; -->
-<!-- # run; -->
-
-<!-- # left join -->
-<!-- rawdata0 <- merge(rawdata_old, recent, by = 'patient_id', all.x = TRUE) -->
-<!-- ``` -->
-
-
-
 
 # rawdata0
 new import
 ```{r}
-rawdata0 <- read_csv('data/Cancer_covid_20210503.csv', col_types = cols(
+# rawdata0 <- read_csv('data/Cancer_COVID_project_06182021.csv', col_types = cols(
+#   Patient_ID = col_character(),
+#   `COVID diag date` = col_date(format='%m/%d/%Y'),
+#   BIRTH_YR = col_double(),
+#   RACE = col_character(),
+#   GENDER = col_character(),
+#   ETHNICITY = col_character(),
+#   REGION = col_character(),
+#   DIVISION = col_character(),
+#   DECEASED_INDICATOR = col_double(),
+#   DATE_OF_DEATH = col_date(format='%m/%d/%Y'),
+#   BMI = col_double(),
+#   WT = col_double(),
+#   HT = col_double(),
+#   SMOKE = col_character(),
+#   MA_Cytotoxic_4w = col_double(),
+#   PS_Cytotoxic_4w = col_double(),
+#   PR_Cytotoxic_4w = col_double(),
+#   MA_Non_Cytotoxic_4w = col_double(),
+#   PS_Non_Cytotoxic_4w = col_double(),
+#   PR_Non_Cytotoxic_4w = col_double(),
+#   Cancer_dx_code = col_character(),
+#   Cancer_date = col_date(format='%m/%d/%Y'),
+#   Cancer = col_double(),
+#   Smoke_by_ICD = col_double(),
+#   Smoke_by_ICD_group = col_character(),
+#   Chronic_Kidney_Disease = col_double(),
+#   Chronic_Obstructive_Pulmonary = col_double(),
+#   Down_Syndrome = col_double(),
+#   Solid_Organ_Transplant = col_double(),
+#   Pregnancy = col_double(),
+#   Heart_Failure = col_double(),
+#   Coronary_Artery_Disease = col_double(),
+#   Cardiomyopathies = col_double(),
+#   Sickle_Cell_Disease = col_double(),
+#   Type_2_Diabetes_Mellitus = col_double(),
+#   Asthma = col_double(),
+#   Cerebrovascular = col_double(),
+#   Cystic_Fibrosis = col_double(),
+#   Hypertension = col_double(),
+#   Other_Immuno = col_double(),
+#   Liver_Disease = col_double(),
+#   Dementia = col_double(),
+#   Pulmonary_Fibrosis = col_double(),
+#   Thalassemia = col_double(),
+#   Type_1_Diabetes_Mellitus = col_double(),
+#   MA_Hydroxychloroquine = col_double(),
+#   MA_Azithromycin = col_double(),
+#   PS_Hydroxychloroquine = col_double(),
+#   PS_Azithromycin = col_double(),
+#   PR_Hydroxychloroquine = col_double(),
+#   PR_Azithromycin = col_double(),
+#   Oxygen = col_double(),
+#   Surgery_4w = col_double(),
+#   Radiation_4w = col_double(),
+#   covid_admitting_diag = col_double(),
+#   Inpatient_visit = col_double(),
+#   `discharge disposition` = col_character(),
+#   covid_dxcode_during_visit = col_double(),
+#   ICU = col_double(),
+#   Ventilation = col_double()
+# ))
+# 
+# 
+# colnames(rawdata0) <- tolower(colnames(rawdata0))
+```
+
+
+```{r}
+rawdata0 <- read_csv('data/Cancer_COVID_project_06182021.csv', col_types = cols(
+  # demographic
   Patient_ID = col_character(),
-  `COVID diag date` = col_date(format='%m/%d/%Y'),
   BIRTH_YR = col_double(),
   RACE = col_character(),
   GENDER = col_character(),
   ETHNICITY = col_character(),
   REGION = col_character(),
   DIVISION = col_character(),
+  
   DECEASED_INDICATOR = col_double(),
   DATE_OF_DEATH = col_date(format='%m/%d/%Y'),
-  BMI = col_double(),
-  WT = col_double(),
-  HT = col_double(),
-  SMOKE = col_character(),
-  MA_Cytotoxic_4w = col_double(),
-  PS_Cytotoxic_4w = col_double(),
-  PR_Cytotoxic_4w = col_double(),
-  MA_Non_Cytotoxic_4w = col_double(),
-  PS_Non_Cytotoxic_4w = col_double(),
-  PR_Non_Cytotoxic_4w = col_double(),
-  Cancer_dx_code = col_character(),
-  Cancer_date = col_date(format='%m/%d/%Y'),
-  Cancer = col_double(),
-  Smoke_by_ICD = col_double(),
-  Smoke_by_ICD_group = col_character(),
-  Chronic_Kidney_Disease = col_double(),
-  Chronic_Obstructive_Pulmonary = col_double(),
-  Down_Syndrome = col_double(),
-  Solid_Organ_Transplant = col_double(),
-  Pregnancy = col_double(),
-  Heart_Failure = col_double(),
-  Coronary_Artery_Disease = col_double(),
-  Cardiomyopathies = col_double(),
-  Sickle_Cell_Disease = col_double(),
-  Type_2_Diabetes_Mellitus = col_double(),
-  Asthma = col_double(),
-  Cerebrovascular = col_double(),
-  Cystic_Fibrosis = col_double(),
-  Hypertension = col_double(),
-  Other_Immuno = col_double(),
-  Liver_Disease = col_double(),
-  Dementia = col_double(),
-  Pulmonary_Fibrosis = col_double(),
-  Thalassemia = col_double(),
-  Type_1_Diabetes_Mellitus = col_double(),
-  MA_Hydroxychloroquine = col_double(),
-  MA_Azithromycin = col_double(),
-  PS_Hydroxychloroquine = col_double(),
-  PS_Azithromycin = col_double(),
-  PR_Hydroxychloroquine = col_double(),
-  PR_Azithromycin = col_double(),
-  Oxygen = col_double(),
-  Surgery_4w = col_double(),
-  Radiation_4w = col_double(),
-  covid_admitting_diag = col_double(),
-  Inpatient_visit = col_double(),
-  `discharge disposition` = col_character(),
-  covid_dxcode_during_visit = col_double(),
-  ICU = col_double(),
-  Ventilation = col_double()
-))
-
+  # date
+  FIRST_MONTH_ACTIVE = col_double(),
+  LAST_MONTH_ACTIVE = col_double(),
+  entry_date = col_date(format='%m/%d/%Y'),
+  exit_date = col_date(format='%m/%d/%Y'),
+  # diagnosis date
+  COVID_PCR_date = col_date(format='%m/%d/%Y'),
+  # cancer
+  cancer = col_double(),
+  cancer_dx_codes = col_character(),
+  cancer_dx_dates = col_character(),
+  solid_tumor = col_double(),
+  # comorbidities
+  any_malignancy = col_double(),
+  hiv = col_double(),
+  renal = col_double(),
+  hemiplegia = col_double(),
+  diabetes_with_cc = col_double(),
+  diabetes_without_cc = col_double(),
+  severe_liver = col_double(),
+  mild_liver = col_double(),
+  peptic_ulcer = col_double(),
+  rheumatic = col_double(),
+  chronic_pulmonary = col_double(),
+  cerebrovascular = col_double(),
+  dementia = col_double(),
+  peripheral_vascular = col_double(),
+  heart_failure = col_double(),
+  myocardial_infarction = col_double(),
+  obesity = col_double(),                    # no need to calculate obesity now
+  cardiovascular = col_double(),
+  smoking_infarction = col_double(),          # definition of this?
+  wheelchair = col_double(),
+  dysphagia = col_double(),
+  #treatment
+  Chemotherapy_DIAG_1_month = col_double(),
+  Chemotherapy_PROC_1_month = col_double(),
+  Immunotherapy_DIAG_1_month = col_double(),
+  Radiation_DIAG_1_month = col_double(),
+  Radiation_PROC_1_month = col_double(),
+  Chemotherapy_DIAG_3_month = col_double(),
+  Chemotherapy_PROC_3_month = col_double(),
+  Immunotherapy_DIAG_3_month = col_double(),
+  Radiation_DIAG_3_month = col_double(),
+  Radiation_PROC_3_month = col_double(),
+  Chemotherapy_DIAG_6_month = col_double(),
+  Chemotherapy_PROC_6_month = col_double(),
+  Immunotherapy_DIAG_6_month = col_double(),
+  Radiation_DIAG_6_month = col_double(),
+  Radiation_PROC_6_month = col_double(),
+  
+  # treatment for COVID
+  Treatment_PS_Remdesivir = col_double(),
+  Treatment_ADM_Remdesivir = col_double(),
+  
+  Treatment_PS_Lopinavir_or_ritonavir = col_double(),
+  Treatment_ADM_Lopinavir_or_ritonavir = col_double(),
+  
+  
+  Treatment_PS_Bamlanivimab = col_double(),
+  Treatment_ADM_Bamlanivimab = col_double(),
+  Treatment_Bamlanivimab_PROC = col_double(),
+  
+  Treatment_PS_Casirivimab = col_double(),
+  Treatment_ADM_Casirivimab = col_double(),
+  Treatment_Casirivimab_PROC = col_double(),
+  
+  Treatment_PS_Tocilizumab = col_double(),
+  Treatment_ADM_Tocilizumab = col_double(),
+  Treatment_Tocilizumab_PROC = col_double(),
+  
+  Treatment_PS_Hydroxychloroquine = col_double(),
+  Treatment_ADM_Hydroxychloroquine = col_double(),
+  
+  
+  
+  
+  # symptom after coronavirus infection
+  Fever = col_double(),
+  Cough = col_double(),
+  Shortness_of_breath = col_double(),
+  Muscle = col_double(),
+  Headache = col_double(),
+  Loss_of_taste_or_smell = col_double(),
+  Sore_throat = col_double(),
+  Nausea = col_double(),
+  Diarrhea = col_double(),
+  # outcome
+  INTUBATION = col_double(),
+  Plasmapharesis = col_double(),
+  # covid outcome
+  VENTILATOR = col_double(),
+  Hospitalization = col_double(),
+  ICU = col_double()
+)
+)
 
 colnames(rawdata0) <- tolower(colnames(rawdata0))
+
+
+# changes:
+# missing covariates: smoking, pregnancy
+# no inpatient indicator variables: all patients now are inpatient
 ```
 
 
+## restrict data used (june to dec)
+```{r}
+rawdata0 <- rawdata0 %>% filter(covid_pcr_date >= as.Date('2020/06/01') && covid_pcr_date <= as.Date('2020/12/31'))
+```
+
+
+## sample to test
+```{r}
+# rawdata0 <- rawdata0[sample(nrow(rawdata0), 50000, replace = FALSE),]
+```
+
+
+
+
+
+exact the earlies date of cancer record as cancer_date
+```{r}
+cancer_dx_dates <- str_split(rawdata0$cancer_dx_dates, pattern = '\\|')
+cancer_dx_dates <- lapply(cancer_dx_dates, as.Date, format='%m/%d/%Y')
+cancer_dx_dates <- lapply(cancer_dx_dates, sort, decreasing = FALSE)
+cancer_dx_dates <- lapply(cancer_dx_dates, function(x) if(length(x) == 0) NA_integer_ else x)
+cancer_date <- sapply(cancer_dx_dates, `[[`, 1)
+rawdata0$cancer_date <- as.Date(cancer_date, origin ="1970-01-01")
+```
+
 ```{r}
 rawdata0 <- rawdata0 %>% 
+  select(-c(cancer_dx_dates, cancer_dx_codes))
+```
+
+
+<!-- ```{r} -->
+<!-- r <- regexpr('.{10}$', rawdata0$cancer_dx_dates, perl = TRUE) -->
+<!-- out <- rep(NA, nrow(rawdata0)) -->
+<!-- out[!is.na(rawdata0$cancer_dx_dates)] <- regmatches(rawdata0$cancer_dx_dates, r) -->
+
+<!-- rawdata0$cancer_date <- out -->
+<!-- ``` -->
+
+
+# rename variables to be compatiable with the code (without removing the old)
+# check: should we just include inpatient patients?
+```{r}
+# death=DECEASED_INDICATOR; 
+# inpatient=Inpatient_visit;
+
+
+rawdata0 <- rawdata0 %>% 
+  rowwise() %>% 
+  mutate(death = deceased_indicator,
+         ventilation = ventilator,
+         inpatient = hospitalization,
+         `covid diag date` = covid_pcr_date)
+```
+
+
+
+```{r}
+rawdata0 <- rawdata0 %>%
   mutate(
-          `covid diag date` = as.Date(`covid diag date`),
-          date_of_death = as.Date(date_of_death),
-          cancer_date = as.Date(cancer_date),
-          gender = ifelse(gender=='Unknown', NA, gender)
+          # `covid diag date` = as.Date(`covid diag date`),
+          # date_of_death = as.Date(date_of_death),
+          # cancer_date = as.Date(cancer_date),
+          gender = ifelse(gender=='Unknown', NA, gender),
+          region = ifelse(region == 'Other/Unknown', NA, region)
          )
 ```
 
@@ -204,14 +284,6 @@ head(rawdata0)
 # rawdata0 <- rawdata0[sample(nrow(rawdata0), 10000, replace = FALSE),]
 ```
 
-```{r}
-save(rawdata0, file = 'data/rawdata0.RData')
-```
-
-
-```{r}
-
-```
 
 
 # rawdata1
@@ -236,76 +308,69 @@ rawdata1 <- rawdata0 %>%
 ```
 
 
-
-recode smoke status as variable "smoke_status" 
-```{r}
-# if smoke in ("Current smoker") then smoke_status="a:current";
-# else if smoke in ("Previously smoked") then smoke_status="b:former";
-# else if smoke in ("N","Never smoked") then smoke_status="c:never";
-# else if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") then smoke_status="d:Other/unknown";
-
-
-# 
-# level_key <- c('Current smoker'='a:current', 'Previously smoked'='b:former', 'Never smoked'='c:never', 
-#                'Not currently smoking'= 'd:Other/unknown',
-#                'Other smoking status' = 'd:Other/unknown', 
-#                'Unknown smoking status'='d:Other/unknown')
-# rawdata1 <- rawdata1 %>% mutate(smoke_status=recode_factor(smoke, !!!level_key, .missing ='d:Other/unknown'))
-rawdata1 <- rawdata1 %>%
-  rowwise() %>% 
-  mutate(smoke_status = ifelse(smoke == 'Current smoker', 'a:current',
-                              ifelse(smoke == 'Previously smoked', 'b:former',
-                                   ifelse(smoke %in% c('N', 'Never smoked'), 'c:never',
-                                          ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status"), NA)))))
-                              
-```
+# no smoking in the new data
+<!-- recode smoke status as variable "smoke_status"  -->
+<!-- ```{r} -->
+<!-- # if smoke in ("Current smoker") then smoke_status="a:current"; -->
+<!-- # else if smoke in ("Previously smoked") then smoke_status="b:former"; -->
+<!-- # else if smoke in ("N","Never smoked") then smoke_status="c:never"; -->
+<!-- # else if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") then smoke_status="d:Other/unknown"; -->
 
 
-imputation smoke status by ICD
-```{r}
-# *try to fill in some missing by ICD smoke;
-# if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="current" then smoke_status="a:current";
-# if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="former" then smoke_status="b:former";
-
-rawdata1 <- rawdata1 %>%
-  rowwise() %>% 
-  # use case_when to update variable to make code more succinct
-  mutate(smoke_status = case_when(
-    is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'current' ~ 'a:current',
-    is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'former' ~ 'b:former',
-    TRUE ~ smoke_status
-  ))
-  
-  # 
-  # 
-  # mutate(smoke_status = ifelse(is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'current', "a:current",
-  #                              ifelse(is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'former', 'b:former', smoke_status)
-  #                              )
-  #        ) 
-```
-
-
-```{r}
-# if smoke_status in ("a:current","b:former") then smoke_yn=1;
-# else if smoke_status not in ("d:Other/unknown") then smoke_yn=0;
-
-rawdata1 <- rawdata1 %>% 
-  rowwise() %>% 
-  mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0))
-```
+<!-- #  -->
+<!-- # level_key <- c('Current smoker'='a:current', 'Previously smoked'='b:former', 'Never smoked'='c:never',  -->
+<!-- #                'Not currently smoking'= 'd:Other/unknown', -->
+<!-- #                'Other smoking status' = 'd:Other/unknown',  -->
+<!-- #                'Unknown smoking status'='d:Other/unknown') -->
+<!-- # rawdata1 <- rawdata1 %>% mutate(smoke_status=recode_factor(smoke, !!!level_key, .missing ='d:Other/unknown')) -->
 
 
 
-```{r}
-# death=DECEASED_INDICATOR; 
-# inpatient=Inpatient_visit;
+<!-- rawdata1 <- rawdata1 %>% -->
+<!--   rowwise() %>%  -->
+<!--   mutate(smoke_status = ifelse(smoke == 'Current smoker', 'a:current', -->
+<!--                               ifelse(smoke == 'Previously smoked', 'b:former', -->
+<!--                                    ifelse(smoke %in% c('N', 'Never smoked'), 'c:never', -->
+<!--                                           ifelse(smoke %in% c("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status"), NA))))) -->
+
+<!-- ``` -->
 
 
-rawdata1 <- rawdata1 %>% 
-  rowwise() %>% 
-  mutate(death = deceased_indicator, 
-         inpatient = inpatient_visit)
-```
+<!-- imputation smoke status by ICD -->
+<!-- ```{r} -->
+<!-- # *try to fill in some missing by ICD smoke; -->
+<!-- # if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="current" then smoke_status="a:current"; -->
+<!-- # if smoke in ("Not recorded", "Other smoking status","Not currently smoking","Unknown smoking status","") and Smoke_by_ICD=1 and Smoke_by_ICD_group="former" then smoke_status="b:former"; -->
+
+<!-- rawdata1 <- rawdata1 %>% -->
+<!--   rowwise() %>%  -->
+<!--   # use case_when to update variable to make code more succinct -->
+<!--   mutate(smoke_status = case_when( -->
+<!--     is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'current' ~ 'a:current', -->
+<!--     is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'former' ~ 'b:former', -->
+<!--     TRUE ~ smoke_status -->
+<!--   )) -->
+
+<!--   #  -->
+<!--   #  -->
+<!--   # mutate(smoke_status = ifelse(is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'current', "a:current", -->
+<!--   #                              ifelse(is.na(smoke_status) && smoke_by_icd == 1 && smoke_by_icd_group == 'former', 'b:former', smoke_status) -->
+<!--   #                              ) -->
+<!--   #        )  -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- # if smoke_status in ("a:current","b:former") then smoke_yn=1; -->
+<!-- # else if smoke_status not in ("d:Other/unknown") then smoke_yn=0; -->
+
+<!-- rawdata1 <- rawdata1 %>%  -->
+<!--   rowwise() %>%  -->
+<!--   mutate(smoke_yn = ifelse(smoke_status %in% c("a:current", "b:former"), 1, 0)) -->
+<!-- ``` -->
+
+
+
 
 
 ```{r}
@@ -315,7 +380,9 @@ rawdata1 <- rawdata1 %>%
 
 rawdata1 <- rawdata1 %>% 
   rowwise() %>% 
-  mutate(severity = ifelse((death == 1 || inpatient == 1 || icu == 1 || ventilation == 1), 1, 0))
+  mutate(severity = ifelse((death == 1 || 
+                              # inpatient == 1 || 
+                              icu == 1 || ventilation == 1), 1, 0))
                           
 ```
 
@@ -327,12 +394,16 @@ rawdata1 <- rawdata1 %>%
 
 rawdata1 <- rawdata1 %>% 
   rowwise() %>% 
-  mutate(event_count = death + inpatient + icu + ventilation,
-                                covid_year = as.numeric(format(`covid diag date`, "%Y")), 
+  mutate(event_count = death + 
+           # inpatient +
+           icu + ventilation,
+                                covid_year = as.numeric(format(covid_pcr_date, "%Y")), 
                                 age = (covid_year - birth_yr))
 ```
 
 
+
+# create age ordinal varaible
 ```{r}
 # if age>=0 and age<18 then age_gp="0-18  ";
 # else if age>=18 and age<50 then age_gp="18-50";
@@ -370,12 +441,20 @@ mean(rawdata1$birth_yr, na.rm = TRUE)
 ```
 
 
-check whether the processed data has the same fingerprints as SAS processed data
-```{r}
-descr(rawdata1, round.digits = 4, var = severity)
-```
+<!-- check whether the processed data has the same fingerprints as SAS processed data -->
+<!-- ```{r} -->
+<!-- descr(rawdata1, round.digits = 4, var = severity) -->
+<!-- ``` -->
 
 ```{r}
 save(rawdata1, file = 'data/rawdata1.RData')
 ```
+
+
+# skip step2 since no more need to calculate obesity
+```{r}
+rawdata2 <- rawdata1
+save(rawdata2, file = 'data/rawdata2.RData')
+```
+
 

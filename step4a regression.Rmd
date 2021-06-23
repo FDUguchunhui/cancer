@@ -1,0 +1,315 @@
+---
+title: "step4a regression"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+# possible mistake?  why model n_comorbidity n_pos_comorb as continous variable?
+```{r}
+final_dat_complete <- final_dat %>% 
+  dplyr::select(t_30, death, cancer, age_gp, gender, race_gp, n_comorbity_gp, n_posi_comorb_gp, surgery_4w) %>% 
+  drop_na() 
+
+library(survival)
+survival_model_all <- coxph(Surv(t_30, death) ~ (cancer + age_gp + gender + race_gp
+                            + n_comorbity_gp + n_posi_comorb_gp + surgery_4w) ^2, data = final_dat_complete)
+
+summary(survival_model_all)
+```
+```{r}
+library(MASS)
+stepAIC(survival_model_all, direction='backward', trace = FALSE)
+```
+
+
+```{r}
+dat <- final_dat %>% filter(age_gp != '>= 75')
+coxph(formula = Surv(t_30, death) ~ cancer + age_gp + gender + 
+    race_gp + n_comorbity_gp + n_posi_comorb_gp + surgery_4w +  age_gp:gender + 
+    age_gp:race_gp + age_gp:n_comorbity_gp + age_gp:n_posi_comorb_gp + 
+    age_gp:surgery_4w + gender:race_gp + gender:n_comorbity_gp + 
+    race_gp:n_posi_comorb_gp + race_gp:surgery_4w + n_comorbity_gp:n_posi_comorb_gp + 
+    n_comorbity_gp:surgery_4w, data = dat)
+```
+
+
+```{r}
+library(survminer)
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp, data = final_dat_complete) 
+ggsurvplot(model_surv_3, data = final_dat_complete, risk.table = 'absolute', pval = TRUE, surv.median.line = 'hv', ylim=c(0.7, 1))
+```
+
+
+
+```{r}
+options(digits=3)
+res <- summary(survival_model_all)
+# str(res)
+res$coefficients
+```
+
+
+```{r}
+
+# dat <- final_dat %>% 
+#   select(cancer_type, chemo_4w, radiation_4w, survive_5yr_more, age_gp, gender, 
+#          race_gp, n_comorbity, n_posi_comorb, surgery_4w)
+# Hmisc::rcorr(dat)
+```
+
+# need to check interaction?
+```{r}
+survival_model_cancer <- coxph(Surv(t_30, death) ~ cancer_type + chemo_4w + 
+                                 radiation_4w + survive_5yr_more + age_gp + 
+                                 gender + race_gp + n_comorbity_gp + n_posi_comorb_gp +
+                                 surgery_4w, data = dat_cancer)
+
+summary(survival_model_cancer)
+```
+
+
+```{r}
+res <- summary(survival_model_cancer)
+# str(res)
+res$coefficients
+```
+
+
+
+
+# ```{r}
+# # data alltime;
+# # set B.final_dat;
+# # keep cancer T_30 death;
+# # run;
+# # PROC EXPORT DATA= WORK.alltime
+# #             OUTFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\alltime.csv"
+# #             DBMS=CSV REPLACE;
+# #      PUTNAMES=YES;
+# # RUN;
+# ```
+
+```{r}
+library(survival)
+library("survminer")
+
+#before matching;
+fit <- survfit(Surv(t_30,  death) ~ cancer,data = final_dat)
+ggsurvplot(fit, data = final_dat, ylim = c(0.85,1),conf.int = TRUE)
+  
+#after matching;
+matched_data=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\matched_data.csv",head=T)
+fit_aftermatch <- survfit(Surv(T_30, death) ~ Cancer,data = matched_data)
+ggsurvplot(fit_aftermatch, data = matched_data, ylim = c(0.85,1),conf.int = TRUE)
+
+splots <- list()
+splots[[1]] <- ggsurvplot(fit, data = final_dat,xlim=c(0,30), ylim = c(0.9,1),,xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11,  "black"),font.y = c(11, "black"),linetype = 1,size = 1,palette = "lancet") 
+splots[[2]] <- ggsurvplot(fit_aftermatch , data = matched_data, xlim=c(0,30),ylim = c(0.9,1),xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11, "black"),
+   font.y = c(11,  "black"),linetype = 1,size = 1,palette = "lancet")
+   
+arrange_ggsurvplots(splots, print = TRUE,
+  ncol = 2, nrow = 1, risk.table.height = 0.4,ggtheme = theme_minimal())
+```
+
+
+
+```{r}
+####################################PLOT FOR LUNG CANCER;
+library(survival)
+library("survminer")
+
+#before matching;
+final_dat=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\alltime_lung_cancer.csv",head=T)
+fit <- survfit(Surv(T_30,  death) ~ Cancer,data = final_dat)
+  
+#after matching;
+matched_data=read.csv(file="Z:\\8 GQ Zhang group\\STEP1 data analysis\\matched_data_lung_cancer.csv",head=T)
+fit_aftermatch <- survfit(Surv(T_30, death) ~ Cancer,data = matched_data)
+ggsurvplot(fit_aftermatch, data = matched_data, ylim = c(0.85,1),conf.int = TRUE)
+
+splots <- list()
+splots[[1]] <- ggsurvplot(fit, data = final_dat,xlim=c(0,30), ylim = c(0.9,1),,xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11,  "black"),font.y = c(11, "black"),linetype = 1,size = 1,palette = "lancet") 
+splots[[2]] <- ggsurvplot(fit_aftermatch , data = matched_data, xlim=c(0,30),ylim = c(0.9,1),xlab="Days since COVID diagnosis",conf.int = TRUE,censor=F,font.x = c(11, "black"),
+   font.y = c(11,  "black"),linetype = 1,size = 1,palette = "lancet")
+   
+arrange_ggsurvplots(splots, print = TRUE,
+  ncol = 2, nrow = 1, risk.table.height = 0.4,ggtheme = theme_minimal())
+  
+```
+
+
+
+
+
+
+
+
+```{r}
+#  
+# data matched_data;
+# set matched;
+# keep cancer T_30  death;
+# run;
+# PROC EXPORT DATA= WORK.matched_data  
+#             OUTFILE= "Z:\8 GQ Zhang group\STEP1 data analysis\matched_data.csv" 
+#             DBMS=CSV REPLACE;
+#      PUTNAMES=YES;
+# RUN;
+```
+
+
+
+
+
+```{r}
+# proc logistic data=rawdata_cancer descending;
+# class  age_gp(ref=first) gender(ref=first)    race_gp(ref="Non-hispanic white")
+# Surgery_4w(ref=first)  cancer_type(ref=first)
+# survive_5yr_more(ref=first)
+# Radiation_4w(ref=first) chemo_4w(ref=first)
+# / param=ref;
+# model severity=age_gp gender  
+# race_gp
+# N_comorbity
+# N_Posi_Comorb
+# Surgery_4w
+# cancer_type
+# chemo_4w
+# Radiation_4w 
+# survive_5yr_more/selection=stepwise;
+# ods output ParameterEstimates=Prob(where=(Variable~='Intercept') keep=
+# variable ProbChiSq) OddsRatios=OR(keep=effect OddsRatioEst 
+# LowerCL UpperCL);
+# run;
+```
+
+
+
+# severity (binary)
+```{r}
+fit <- glm(severity ~ cancer_type + chemo_4w +radiation_4w + survive_5yr_more +
+           age_gp + gender + race_gp + n_comorbity_gp + n_posi_comorb_gp +
+             surgery_4w,
+          family = binomial(), data = dat_cancer)
+
+summary(fit)
+# ols_step_both_p(fit, pent = 0.1, prem = 0.3, details = TRUE)
+```
+```{r}
+# ***MODEL 3: Multinomial model;
+# *severity, cancer;
+# proc logistic data=rawdata_cancer descending;
+# class  age_gp(ref=first) gender(ref=first)    race_gp(ref="Non-hispanic white")
+# Surgery_4w(ref=first)  cancer_type(ref=first)
+# survive_5yr_more(ref=first)
+# chemo_4w(ref=first)
+# Radiation_4w(ref=first) / param=ref;
+# model  severity_level=age_gp gender  
+# race_gp
+# N_comorbity
+# N_Posi_Comorb
+# Surgery_4w
+# cancer_type
+# chemo_4w
+# Radiation_4w 
+# survive_5yr_more/link=glogit;
+# ods output ParameterEstimates=Prob(where=(Variable~='Intercept')) OddsRatios=OR;
+# run;
+
+
+
+```
+
+
+data Prob; set Prob; retain id 0; id=id+1; run;
+data OR; set OR; retain id 0; id=id+1; run;
+data MNP_cancer;merge Prob OR;by id;
+MN_cancer=trim(left(put(OddsRatioEst,8.2)))||"("||
+trim(left(put(LowerCL,8.2)))||","||trim(left(put(UpperCL,8.2)))||")";
+drop OddsRatioEst LowerCL UpperCL;
+run; 
+proc datasets;delete Prob OR;quit;run;
+
+
+*severity, non-cancer;
+proc logistic data=rawdata_nocancer descending;
+class  age_gp(ref=first) gender(ref=first)    race_gp(ref="Non-hispanic white")
+Surgery_4w(ref=first) / param=ref;
+model severity_level =age_gp gender  
+race_gp
+N_comorbity
+N_Posi_Comorb
+Surgery_4w/link=glogit;
+ods output ParameterEstimates=Prob(where=(Variable~='Intercept')) OddsRatios=OR ;
+run;
+data Prob; set Prob; retain id 0; id=id+1; run;
+data OR; set OR; retain id 0; id=id+1; run;
+data MNP_nocancer;merge Prob OR;by id;
+MN_nocancer=trim(left(put(OddsRatioEst,8.2)))||"("||
+trim(left(put(LowerCL,8.2)))||","||trim(left(put(UpperCL,8.2)))||")";
+drop OddsRatioEst LowerCL UpperCL;
+run; 
+proc datasets;delete Prob OR;quit;run;
+
+proc sort data=MNP_cancer; by id; run;
+proc sort data=MNP_nocancer; by id; run;
+
+data MNP_cancer1; set MNP_cancer; where Response="1"; MN_cancer1=MN_cancer; nid=_n_; run;
+data MNP_cancer2; set MNP_cancer; where Response="2"; MN_cancer2=MN_cancer; nid=_n_;run;
+data MNP_cancer3; set MNP_cancer; where Response="3"; MN_cancer3=MN_cancer; nid=_n_;run;
+ 
+data MNP_nocancer1; set MNP_nocancer; where Response="1"; MN_nocancer1=MN_nocancer; nid=_n_;run;
+data MNP_nocancer2; set MNP_nocancer; where Response="2"; MN_nocancer2=MN_nocancer; nid=_n_;run;
+data MNP_nocancer3; set MNP_nocancer; where Response="3"; MN_nocancer3=MN_nocancer; nid=_n_;run;
+ 
+proc sort data=MNP_cancer1; by nid; run;
+proc sort data=MNP_cancer2; by nid; run;
+proc sort data=MNP_cancer3; by nid; run;
+ 
+proc sort data=MNP_nocancer1; by nid; run;
+proc sort data=MNP_nocancer2; by nid; run;
+proc sort data=MNP_nocancer3; by nid; run;
+
+data MNP;
+merge MNP_cancer1 MNP_cancer2 MNP_cancer3  
+MNP_nocancer1 MNP_nocancer2 MNP_nocancer3 ;
+by nid;
+run;
+```{r}
+library(nnet)
+multinom_model_cancer <-  multinom(severity ~ cancer_type + chemo_4w +radiation_4w + survive_5yr_more +
+           age_gp + gender + race_gp + n_comorbity + n_posi_comorb +
+             surgery_4w,
+          family = binomial(), data = dat_cancer)
+summary(multinom_model_cancer)
+```
+
+
+# matching
+```{r}
+# *Export data to do matching;
+# data DATA_FOR_MATCHING;
+# set B.rawdata;
+# keep Patient_ID cancer  GENDER   REGION age            
+# race_gp N_comorbity N_Posi_Comorb  
+# ;
+# if Patient_ID="" 
+# or  GENDER="Unknown" or     
+# REGION="z: Other/Unkn"      
+# or  age=. or cancer=.  or   
+# N_comorbity=. or N_Posi_Comorb=. then delete; *delete missing except race because other and missing are mixed and there's a lot;
+# run;
+
+#match on cancer
+# mydata <- read.csv ("data/Before_matching.csv")
+
+dat_for_matching <- final_dat %>% 
+  select(patient_id, cancer, gender, region, age_gp, race_gp, n_comorbity_gp, n_posi_comorb_gp, t_30, death) %>% 
+  drop_na()
+```
