@@ -65,6 +65,9 @@ dat_for_matching <- final_dat %>%
 # dat_for_matching <- dat_for_matching[sample(nrow(dat_for_matching), 100000, replace = FALSE),]
 ```
 
+
+
+# check: matching base on diagnosis date
 ```{r}
 # need to refactoring coding
 # age or age_gp

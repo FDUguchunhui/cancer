@@ -205,10 +205,10 @@ colnames(rawdata0) <- tolower(colnames(rawdata0))
 ```
 
 
-## restrict data used (june to dec)
-```{r}
-rawdata0 <- rawdata0 %>% filter(covid_pcr_date >= as.Date('2020/06/01') && covid_pcr_date <= as.Date('2020/12/31'))
-```
+
+
+
+
 
 
 ## sample to test
@@ -395,7 +395,7 @@ rawdata1 <- rawdata1 %>%
 rawdata1 <- rawdata1 %>% 
   rowwise() %>% 
   mutate(event_count = death + 
-           # inpatient +
+            inpatient +
            icu + ventilation,
                                 covid_year = as.numeric(format(covid_pcr_date, "%Y")), 
                                 age = (covid_year - birth_yr))
