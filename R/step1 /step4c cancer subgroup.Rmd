@@ -1,0 +1,46 @@
+---
+title: "step4c cancer subgroup"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(magrittr)
+library(survival)
+```
+
+
+```{r}
+load('data/final_dat.RData')
+```
+
+
+```{r}
+
+model_simple_inpatient <- glm(inpatient ~ cancer_13type + gender + region + age_gp + race_gp +
+                  renal + hemiplegia + diabetes_without_cc + diabetes_with_cc + mild_liver + severe_liver + peptic_ulcer + 
+              rheumatic + chronic_pulmonary + cerebrovascular + dementia + 
+              peripheral_vascular + heart_failure +
+              obesity + cardiovascular + smoking_infarction + dysphagia +
+                # additional 
+              hiv + wheelchair, data = final_dat, family = binomial(link = "logit"))
+(model_simple_inpatient_coef <- summary(model_simple_inpatient))
+ts_inpatient <- model_simple_inpatient_coef$coefficients[2, ]
+
+```
+
+
+```{r}
+cancer ~ gender + region + age_gp + race_gp +
+                  renal + hemiplegia + diabetes_without_cc + diabetes_with_cc + mild_liver + severe_liver + peptic_ulcer + 
+              rheumatic + chronic_pulmonary + cerebrovascular + dementia + 
+              peripheral_vascular + heart_failure +
+              obesity + cardiovascular + smoking_infarction + dysphagia +
+                # additional 
+              hiv + wheelchair,
+```
+

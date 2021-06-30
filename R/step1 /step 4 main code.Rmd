@@ -353,7 +353,10 @@ var_list_demographic <- c('age_gp', 'gender', 'race_gp', 'region')
 #                     'Thalassemia',
 #                     'Type_1_Diabetes_Mellitus'))
 
-var_list <- c('charlson_comorbidity_index', 'n_comorbity_gp', 'any_malignancy', 'hiv', 
+
+# myocardial_infarction is a subset of cardiovascular 
+var_list <- c('charlson_index',
+              'n_comorbidity_gp', 'any_malignancy', 'hiv', 
               'renal', 'hemiplegia', 'diabetes_with_cc',
               'diabetes_without_cc', 'severe_liver', 'mild_liver', 'peptic_ulcer', 
               'rheumatic', 'chronic_pulmonary', 'cerebrovascular', 'dementia',
@@ -407,198 +410,198 @@ var_list <- c('age_cancer_gp', 'solid_tumor',
               'radiation_1_month', 'radiation_3_month', 'radiation_6_month', 
               'survive_5yr_more')
 
-(table_cancer_treatment <- descriptive_table(var_list, 'cancer', dat_cancer, showNA = 'ifany'))
+(table_cancer_treatment <- descriptive_table(var_list, 'cancer', final_dat, showNA = 'ifany'))
 ```
 
 
-<!-- %macro one_factor(rawdata_cancer,death); -->
-<!-- proc datasets; delete S7-S19; run; -->
+<!-- <!-- %macro one_factor(rawdata_cancer,death); --> -->
+<!-- <!-- proc datasets; delete S7-S19; run; --> -->
 
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1, age_gp,7); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,gender,8); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,race_gp,9); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,region,10); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,N_comorbity_gp,11); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,N_Posi_Comorb_gp,12); -->
-<!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,surgery4wk,13); -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1, age_gp,7); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,gender,8); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,race_gp,9); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,region,10); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,N_comorbity_gp,11); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,N_Posi_Comorb_gp,12); --> -->
+<!-- <!-- %twoway_nominal2(&rawdata_cancer,&death, 0,1,surgery4wk,13); --> -->
 
-<!-- data &rawdata_cancer.&death; -->
-<!-- set S7-S13; -->
+<!-- <!-- data &rawdata_cancer.&death; --> -->
+<!-- <!-- set S7-S13; --> -->
+<!-- <!-- drop total; --> -->
+<!-- <!-- id=_n_; --> -->
+<!-- <!-- keep id variable level &death.1; --> -->
+<!-- <!-- run; --> -->
+<!-- <!-- proc sort data=&rawdata_cancer.&death; by id; run; --> -->
+<!-- <!-- %mend; --> -->
+<!-- ```{r} -->
+<!-- one_factor <- function(data, row_var_list, col_var, keep_one_row_name = TRUE, test=FALSE, ...) { -->
+
+<!--   table_lst <- list() -->
+<!--   for (i in 1:length(row_var_list)) { -->
+<!--      table_lst[[i]] <- two_way_table(data=data, row_var=row_var_list[i], col_var=col_var, keep_one_row_name=TRUE, test=test, margin = c('row'), ...) -->
+<!--   } -->
+
+<!--   com_indep <-  bind_rows(table_lst) -->
+<!--   com_indep <- com_indep %>% select(-c(sym(paste(col_var, 0)), 'Total')) -->
+
+<!--   return(com_indep) -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- # bug? colum sum not equal to 100% -->
+<!-- ```{r} -->
+<!-- var_lst <- c('age_gp', 'gender', 'race_gp', 'region', 'n_comorbity_gp',  -->
+<!--              'n_posi_comorb_gp', 'surgery4wk') -->
+<!-- dat_cancer_death <- one_factor(dat_cancer, var_lst, 'death') -->
+
+<!-- dat_cancer_icu <- one_factor(dat_cancer, var_lst, 'icu') -->
+
+<!-- dat_cancer_ventilation <- one_factor(dat_cancer, var_lst, 'ventilation') -->
+
+<!-- dat_cancer_inpatient <- one_factor(dat_cancer, var_lst, 'inpatient') -->
+<!-- ``` -->
+
+
+<!-- data within_cancer; -->
+<!-- merge rawdata_cancerdeath  -->
+<!-- rawdata_cancerICU rawdata_cancerVentilation -->
+<!-- rawdata_cancerinpatient; -->
+<!-- by id; -->
+<!-- run;  -->
+<!-- ```{r} -->
+<!-- within_cancer <- cbind(dat_cancer_death, -->
+<!-- 'icu 1' = dat_cancer_icu[, 'icu 1'], 'ventilation 1'= dat_cancer_ventilation[, 'ventilation 1'], -->
+<!-- 'inpatient 1'= dat_cancer_inpatient[, 'inpatient 1']) -->
+<!-- within_cancer  -->
+<!-- ``` -->
+
+<!-- %one_factor(rawdata_nocancer,death); -->
+<!-- %one_factor(rawdata_nocancer,ICU); -->
+<!-- %one_factor(rawdata_nocancer,Ventilation);  -->
+<!-- %one_factor(rawdata_nocancer,inpatient);  -->
+
+<!-- ```{r} -->
+<!-- dat_nocancer_death <- one_factor(dat_nocancer, var_lst, 'death') -->
+<!-- dat_nocancer_icu <- one_factor(dat_nocancer, var_lst, 'icu') -->
+<!-- dat_nocancer_ventilation <- one_factor(dat_nocancer, var_lst, 'ventilation') -->
+<!-- dat_nocancer_inpatient <- one_factor(dat_nocancer, var_lst, 'inpatient') -->
+<!-- ``` -->
+
+<!-- data within_nocancer; -->
+<!-- merge rawdata_nocancerdeath   -->
+<!-- rawdata_nocancerICU rawdata_nocancerVentilation -->
+<!-- rawdata_nocancerinpatient; -->
+<!-- by id; -->
+<!-- death1_noca= death1; -->
+<!-- ICU1_noca=ICU1; -->
+<!-- Ventilation1_noca=Ventilation1; -->
+<!-- inpatient1_noca= inpatient1; -->
+<!-- ```{r} -->
+<!-- within_nocancer <- cbind(dat_nocancer_death, -->
+<!-- 'icu1_noca' = dat_nocancer_icu[, 'icu 1'], 'ventilation1_noca'= dat_nocancer_ventilation[, 'ventilation 1'], -->
+<!-- 'inpatient1_noca'= dat_nocancer_inpatient[, 'inpatient 1']) -->
+<!-- within_nocancer <- within_nocancer %>% rename('death1_noca' = 'death 1') -->
+<!-- within_nocancer -->
+<!-- ``` -->
+<!-- # table 3 -->
+
+<!-- data Table3_part1; -->
+<!-- merge within_cancer within_nocancer; -->
+<!-- by id; -->
+<!-- run; -->
+<!-- ```{r} -->
+<!-- table3_part1 <- cbind(within_cancer, within_nocancer[, 3:ncol(within_nocancer)]) -->
+<!-- ``` -->
+
+<!-- %macro one_factor_cancer(death); -->
+<!-- proc datasets; delete S16-S20; run; -->
+<!-- %twoway_nominal2(rawdata_cancer,&death, 0,1,cancer_type,16); -->
+<!-- %twoway_digital2(rawdata_cancer,&death, 0,1,chemo_4w,17); -->
+<!-- %twoway_digital2(rawdata_cancer,&death, 0,1,Radiation_4w,18); -->
+<!-- %twoway_nominal2(rawdata_cancer,&death, 0,1,age_cancer_gp,19); -->
+<!-- %twoway_digital2(rawdata_cancer,&death, 0,1,survive_5yr_more,20); -->
+
+<!-- data cancer_&death; -->
+<!-- set S16-S20; -->
 <!-- drop total; -->
 <!-- id=_n_; -->
 <!-- keep id variable level &death.1; -->
 <!-- run; -->
-<!-- proc sort data=&rawdata_cancer.&death; by id; run; -->
+<!-- proc sort data=cancer_&death; by id; run; -->
 <!-- %mend; -->
-```{r}
-one_factor <- function(data, row_var_list, col_var, keep_one_row_name = TRUE, test=FALSE, ...) {
-  
-  table_lst <- list()
-  for (i in 1:length(row_var_list)) {
-     table_lst[[i]] <- two_way_table(data=data, row_var=row_var_list[i], col_var=col_var, keep_one_row_name=TRUE, test=test, margin = c('row'), ...)
-  }
-  
-  com_indep <-  bind_rows(table_lst)
-  com_indep <- com_indep %>% select(-c(sym(paste(col_var, 0)), 'Total'))
-  
-  return(com_indep)
-}
-
-```
 
 
-# bug? colum sum not equal to 100%
-```{r}
-var_lst <- c('age_gp', 'gender', 'race_gp', 'region', 'n_comorbity_gp', 
-             'n_posi_comorb_gp', 'surgery4wk')
-dat_cancer_death <- one_factor(dat_cancer, var_lst, 'death')
+<!-- %one_factor_cancer(death); -->
+<!-- %one_factor_cancer(ICU); -->
+<!-- %one_factor_cancer(Ventilation);  -->
+<!-- %one_factor_cancer(inpatient);  -->
 
-dat_cancer_icu <- one_factor(dat_cancer, var_lst, 'icu')
-
-dat_cancer_ventilation <- one_factor(dat_cancer, var_lst, 'ventilation')
-
-dat_cancer_inpatient <- one_factor(dat_cancer, var_lst, 'inpatient')
-```
-
-
-data within_cancer;
-merge rawdata_cancerdeath 
-rawdata_cancerICU rawdata_cancerVentilation
-rawdata_cancerinpatient;
-by id;
-run; 
-```{r}
-within_cancer <- cbind(dat_cancer_death,
-'icu 1' = dat_cancer_icu[, 'icu 1'], 'ventilation 1'= dat_cancer_ventilation[, 'ventilation 1'],
-'inpatient 1'= dat_cancer_inpatient[, 'inpatient 1'])
-within_cancer 
-```
-
-%one_factor(rawdata_nocancer,death);
-%one_factor(rawdata_nocancer,ICU);
-%one_factor(rawdata_nocancer,Ventilation); 
-%one_factor(rawdata_nocancer,inpatient); 
- 
-```{r}
-dat_nocancer_death <- one_factor(dat_nocancer, var_lst, 'death')
-dat_nocancer_icu <- one_factor(dat_nocancer, var_lst, 'icu')
-dat_nocancer_ventilation <- one_factor(dat_nocancer, var_lst, 'ventilation')
-dat_nocancer_inpatient <- one_factor(dat_nocancer, var_lst, 'inpatient')
-```
-
-data within_nocancer;
-merge rawdata_nocancerdeath  
-rawdata_nocancerICU rawdata_nocancerVentilation
-rawdata_nocancerinpatient;
-by id;
-death1_noca= death1;
-ICU1_noca=ICU1;
-Ventilation1_noca=Ventilation1;
-inpatient1_noca= inpatient1;
-```{r}
-within_nocancer <- cbind(dat_nocancer_death,
-'icu1_noca' = dat_nocancer_icu[, 'icu 1'], 'ventilation1_noca'= dat_nocancer_ventilation[, 'ventilation 1'],
-'inpatient1_noca'= dat_nocancer_inpatient[, 'inpatient 1'])
-within_nocancer <- within_nocancer %>% rename('death1_noca' = 'death 1')
-within_nocancer
-```
-# table 3
-
-data Table3_part1;
-merge within_cancer within_nocancer;
-by id;
-run;
-```{r}
-table3_part1 <- cbind(within_cancer, within_nocancer[, 3:ncol(within_nocancer)])
-```
-
-%macro one_factor_cancer(death);
-proc datasets; delete S16-S20; run;
-%twoway_nominal2(rawdata_cancer,&death, 0,1,cancer_type,16);
-%twoway_digital2(rawdata_cancer,&death, 0,1,chemo_4w,17);
-%twoway_digital2(rawdata_cancer,&death, 0,1,Radiation_4w,18);
-%twoway_nominal2(rawdata_cancer,&death, 0,1,age_cancer_gp,19);
-%twoway_digital2(rawdata_cancer,&death, 0,1,survive_5yr_more,20);
-
-data cancer_&death;
-set S16-S20;
-drop total;
-id=_n_;
-keep id variable level &death.1;
-run;
-proc sort data=cancer_&death; by id; run;
-%mend;
-
-
-%one_factor_cancer(death);
-%one_factor_cancer(ICU);
-%one_factor_cancer(Ventilation); 
-%one_factor_cancer(inpatient); 
-
-data Table3_part2;
-merge cancer_death  
-cancer_ICU cancer_Ventilation
-cancer_inpatient;
-by id;  
-run; 
-```{r}
-var_lst <- c('cancer_type', 'chemo_4w', 'radiation_4w', 'age_cancer_gp', 'survive_5yr_more')
-dat_cancer_death <- one_factor(dat_cancer, var_lst, 'death')
-dat_cancer_icu <- one_factor(dat_cancer, var_lst, 'icu')
-dat_cancer_ventilation <- one_factor(dat_cancer, var_lst, 'ventilation')
-dat_cancer_inpatient <- one_factor(dat_cancer, var_lst, 'inpatient')
-
-table3_part2 <- cbind(dat_cancer_death,
-'icu 1' = dat_cancer_icu[, 'icu 1'], 'ventilation 1'= dat_cancer_ventilation[, 'ventilation 1'],
-'inpatient 1'= dat_cancer_inpatient[, 'inpatient 1'])
-within_cancer 
-```
-
-data Table3;
-set Table3_part1 Table3_part2;
-run;
-```{r}
-table3 <- bind_rows(table3_part1, table3_part2)
-# table3 <- table3 %>% select('variable', 'level', `death1_noca`:`inpatient1_noca`, everything())
-table3
-```
-
-
-<!-- # Table 4, models; -->
-<!-- data final_dat; -->
-<!-- set B.final_dat; -->
-<!-- if gender="Unknown" then gender=""; *to make missing not to participate in models; -->
-<!-- if age_cancer_gp="miss" then age_cancer_gp="";   -->
-<!-- if age_gp="z: Unk" then age_gp=""; -->
-<!-- run; -->
+<!-- data Table3_part2; -->
+<!-- merge cancer_death   -->
+<!-- cancer_ICU cancer_Ventilation -->
+<!-- cancer_inpatient; -->
+<!-- by id;   -->
+<!-- run;  -->
 <!-- ```{r} -->
-<!-- # work_rawdata <- B_rawdata %>%  -->
-<!-- #   mutate( -->
-<!-- #     gender = factor(ifelse(gender == 'Unknown', NA, gender)), -->
-<!-- #     age_cancer_gp = factor(ifelse(age_cancer_gp == 'miss', NA, age_cancer_gp)), -->
-<!-- #     # age_gp = factor(ifelse(age_gp == 'z: Unknown', NA, age_gp)) -->
-<!-- #     # n_comorbity = factor(n_comorbity), -->
-<!-- #     # n_posi_comorb_gp = factor(n_posi_comorb_gp) -->
-<!-- #   ) %>% droplevels() -->
+<!-- var_lst <- c('cancer_type', 'chemo_4w', 'radiation_4w', 'age_cancer_gp', 'survive_5yr_more') -->
+<!-- dat_cancer_death <- one_factor(dat_cancer, var_lst, 'death') -->
+<!-- dat_cancer_icu <- one_factor(dat_cancer, var_lst, 'icu') -->
+<!-- dat_cancer_ventilation <- one_factor(dat_cancer, var_lst, 'ventilation') -->
+<!-- dat_cancer_inpatient <- one_factor(dat_cancer, var_lst, 'inpatient') -->
 
-<!-- # levels(work_rawdata$gender)[levels(work_rawdata$gender) == 'Unknown'] <-  NA -->
-<!-- # levels(work_rawdata$age_cancer_gp)[levels(work_rawdata$age_cancer_gp) == 'miss'] <-  NA -->
-<!-- # levels(work_rawdata$age_gp)[levels(work_rawdata$age_gp) == 'z: Unknown'] <-  NA -->
+<!-- table3_part2 <- cbind(dat_cancer_death, -->
+<!-- 'icu 1' = dat_cancer_icu[, 'icu 1'], 'ventilation 1'= dat_cancer_ventilation[, 'ventilation 1'], -->
+<!-- 'inpatient 1'= dat_cancer_inpatient[, 'inpatient 1']) -->
+<!-- within_cancer  -->
 <!-- ``` -->
 
- 
-proc freq data=B.final_dat;
-tables chemo_4w;
-run;
+<!-- data Table3; -->
+<!-- set Table3_part1 Table3_part2; -->
+<!-- run; -->
+<!-- ```{r} -->
+<!-- table3 <- bind_rows(table3_part1, table3_part2) -->
+<!-- # table3 <- table3 %>% select('variable', 'level', `death1_noca`:`inpatient1_noca`, everything()) -->
+<!-- table3 -->
+<!-- ``` -->
 
-```{r}
-crosstable(final_dat, 'chemo_4w')
-```
 
-```{r}
-crosstable(dat_cancer, t_30, age_gp, gender, race_gp, n_comorbity, n_posi_comorb,
-  surgery_4w , cancer_type, chemo_4w, radiation_4w, survive_5yr_more)
-```
+<!-- <!-- # Table 4, models; --> -->
+<!-- <!-- data final_dat; --> -->
+<!-- <!-- set B.final_dat; --> -->
+<!-- <!-- if gender="Unknown" then gender=""; *to make missing not to participate in models; --> -->
+<!-- <!-- if age_cancer_gp="miss" then age_cancer_gp="";   --> -->
+<!-- <!-- if age_gp="z: Unk" then age_gp=""; --> -->
+<!-- <!-- run; --> -->
+<!-- <!-- ```{r} --> -->
+<!-- <!-- # work_rawdata <- B_rawdata %>%  --> -->
+<!-- <!-- #   mutate( --> -->
+<!-- <!-- #     gender = factor(ifelse(gender == 'Unknown', NA, gender)), --> -->
+<!-- <!-- #     age_cancer_gp = factor(ifelse(age_cancer_gp == 'miss', NA, age_cancer_gp)), --> -->
+<!-- <!-- #     # age_gp = factor(ifelse(age_gp == 'z: Unknown', NA, age_gp)) --> -->
+<!-- <!-- #     # n_comorbity = factor(n_comorbity), --> -->
+<!-- <!-- #     # n_posi_comorb_gp = factor(n_posi_comorb_gp) --> -->
+<!-- <!-- #   ) %>% droplevels() --> -->
+
+<!-- <!-- # levels(work_rawdata$gender)[levels(work_rawdata$gender) == 'Unknown'] <-  NA --> -->
+<!-- <!-- # levels(work_rawdata$age_cancer_gp)[levels(work_rawdata$age_cancer_gp) == 'miss'] <-  NA --> -->
+<!-- <!-- # levels(work_rawdata$age_gp)[levels(work_rawdata$age_gp) == 'z: Unknown'] <-  NA --> -->
+<!-- <!-- ``` --> -->
+
+
+<!-- proc freq data=B.final_dat; -->
+<!-- tables chemo_4w; -->
+<!-- run; -->
+
+<!-- ```{r} -->
+<!-- crosstable(final_dat, 'chemo_4w') -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- crosstable(dat_cancer, t_30, age_gp, gender, race_gp, n_comorbity, n_posi_comorb, -->
+<!--   surgery_4w , cancer_type, chemo_4w, radiation_4w, survive_5yr_more) -->
+<!-- ``` -->
 
 
 # MODEL 1:Cox regression;
@@ -611,11 +614,7 @@ survival_model_simple <- coxph(Surv(t_30, death) ~ cancer, data = final_dat)
 summary(survival_model_simple)
 ```
 ## check: the definition of those outcome variable (within what timeframe)
-```{r}
-model_simple_death_same_month <- glm(death_on_month_0 ~ cancer, data = final_dat, family = binomial(link = "logit"))
-(model_simple_death_same_month_coef <- summary(model_simple_death_same_month))
-ts_death <- model_simple_death_same_month_coef$coefficients[2, ]
-```
+
 
 
 ```{r}
@@ -637,9 +636,28 @@ model_simple_icu <- glm(icu ~ cancer, data = final_dat, family = binomial(link =
 (model_simple_icu_coef <- summary(model_simple_icu))
 ts_icu <- model_simple_icu_coef$coefficients[2, ]
 ```
+```{r}
+model_simple_death_same_month <- glm(death ~ cancer, data = final_dat, family = binomial(link = "logit"))
+(model_simple_death_same_month_coef <- summary(model_simple_death_same_month))
+ts_death <- model_simple_death_same_month_coef$coefficients[2, ]
+```
 
 ```{r}
-(ts <- rbind(ts_inpatient, ts_ventilation, ts_icu, ts_death))
+model_simple_death_same_month <- glm(death30 ~ cancer, data = final_dat, family = binomial(link = "logit"))
+(model_simple_death_same_month_coef <- summary(model_simple_death_same_month))
+ts_death30 <- model_simple_death_same_month_coef$coefficients[2, ]
+```
+
+
+
+```{r}
+model_simple_death_same_month <- glm(death90 ~ cancer, data = final_dat, family = binomial(link = "logit"))
+(model_simple_death_same_month_coef <- summary(model_simple_death_same_month))
+ts_death90 <- model_simple_death_same_month_coef$coefficients[2, ]
+```
+
+```{r}
+(ts <- as_tibble(rbind(ts_inpatient, ts_ventilation, ts_icu, ts_death, ts_death30, ts_death90), rownames = 'outcome'))
 ```
 
 

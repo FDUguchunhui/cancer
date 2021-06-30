@@ -205,10 +205,127 @@ colnames(rawdata0) <- tolower(colnames(rawdata0))
 ```
 
 
+```{r}
+# make a demo sample
+# rawdata0 <- rawdata0[sample(nrow(rawdata0), 10000, replace = FALSE),]
+```
+
+
+
+```{r}
+rawdata0_dx_code <- read_csv('data/Cancer_COVID_project_06182021_cancer_dxcodes.csv', col_types = cols(
+  PTID = col_character(),
+  cancer_date = col_date(format='%m/%d/%Y'),
+  cancer_dxcode = col_character())
+)
+
+colnames(rawdata0_dx_code) <- tolower(colnames(rawdata0_dx_code))
+
+
+
+# get the solid/hematological, metastatic history and first cancer date
+
+rawdata0_dx_code <- rawdata0_dx_code %>%
+  mutate(dx2 = substr(cancer_dxcode, 1, 2),
+         dx3 = substr(cancer_dxcode, 1, 3)) %>% 
+  mutate(hematological = ifelse(dx2 %in% c('C8', 'C9', '20'), 1, 0),
+         solid = ifelse(hematological == 0, 1, 0),
+         metastatic = ifelse(dx3 %in% c('C7B', 'C77', 'C78', 'C79', '196', '197', '198'), 1, 0)) %>% 
+  ungroup()
+
+cancer_code_part1 <- rawdata0_dx_code %>%
+  group_by(ptid) %>% 
+  transmute(
+         ptid,
+         solid_history = max(solid),
+         hematological_history = max(hematological),
+         metastatic_history = max(metastatic), 
+         first_cancer_date = min(cancer_date)) %>% 
+  distinct()
+
+cancer_code_part2 <- rawdata0_dx_code %>% 
+  group_by(ptid) %>% 
+  arrange(cancer_date) %>% 
+  summarise_all(last) %>% 
+  transmute(ptid, solid, hematological, metastatic, 
+            last_cancer_date = cancer_date,
+            last_cancer_dxcode = cancer_dxcode)
+  
+
+cancer_code <- merge(cancer_code_part1, cancer_code_part2, by='ptid')
+
+
+# merge data
+rawdata0 <- merge(rawdata0, cancer_code, by.x = 'patient_id', by.y = 'ptid', all.x = TRUE)
+```
+
+
+
+```{r}
+# rawdata0 <- merge(rawdata0, rawdata0_dx_code_first, by.x = 'patient_id', by.y = 'ptid', all.x = TRUE)
+```
+
+```{r}
+rawdata0 <- rawdata0 %>% 
+  select(-c(cancer_dx_dates, cancer_dx_codes))
+```
+
+```{r}
+# cancer_13type <- rawdata0 %>%
+#   rowwise() %>% 
+#   transmute(
+#   patient_id,
+#   cancer_13type = case_when(
+#     regexpr('^C67', last_cancer_dxcode) != -1 || regexpr('^188', last_cancer_dxcode) != -1 ~ 'Bladder',
+#     regexpr('^C50', last_cancer_dxcode) != -1 || regexpr('^174', last_cancer_dxcode) != -1 ~ 'Breast',
+#     regexpr('^C(18|19|20)', last_cancer_dxcode) != -1 || regexpr('^154', last_cancer_dxcode) != -1 ~ 'Colorectal',
+#     regexpr('^C541', last_cancer_dxcode) != -1 || regexpr('^1820', last_cancer_dxcode) != -1 ~ 'Endometrial',
+#     regexpr('^C(64|65)', last_cancer_dxcode) != -1  || regexpr('^(1890|1891)', last_cancer_dxcode) != -1 ~ 'Kidney (Renal Cell and Renal Pelvis)',
+#     regexpr('^C(91|92|93|94|95)', last_cancer_dxcode) != -1 || regexpr('^(204|205|206|207|208)', last_cancer_dxcode) != -1 ~ 'Leukemia (All Types)',
+#     regexpr('^C22', last_cancer_dxcode) != -1 || regexpr('^(1550|1551)', last_cancer_dxcode) != -1 ~ 'Liver and Intrahepatic Bile Duct',
+#     regexpr('^C34', last_cancer_dxcode) != -1 || regexpr('^162', last_cancer_dxcode) != -1 ~ 'Lung',
+#     regexpr('^C43', last_cancer_dxcode) != -1 || regexpr('^172', last_cancer_dxcode) != -1 ~ 'Melanoma',
+#     regexpr('^C(82|83|84|85|86|88)', last_cancer_dxcode) != -1 || regexpr('^(200|202)', last_cancer_dxcode) != -1 ~ 'Non-Hodgkin Lymphoma',
+#     regexpr('^C25', last_cancer_dxcode) != -1 || regexpr('^157', last_cancer_dxcode) != -1 ~ 'Pancreatic',
+#     regexpr('^C61', last_cancer_dxcode) != -1 || regexpr('^185', last_cancer_dxcode) != -1 ~ 'Prostate',
+#     regexpr('^C73', last_cancer_dxcode) != -1 || regexpr('^193', last_cancer_dxcode) != -1 ~ 'Thyroid',
+#     !is.na(last_cancer_dxcode) ~ 'Other'
+#   )
+# )
+
+
+# save(cancer_13type, file = 'data/cancer_13type.RData')
+load('data/cancer_13type.RData')
+```
+
+```{r}
+rawdata0 <- merge(rawdata0, cancer_13type, by = 'patient_id', all.x = TRUE)
+```
+
+
+
+```{r}
+freq(rawdata0$cancer)
+freq(rawdata0$cancer_13type, report.nas = FALSE)
+```
 
 
 
 
+
+
+## create indicator variable recent_cancer
+```{r}
+#notes: look-back is a good idea
+rawdata0 <- rawdata0 %>% mutate(
+  recent_cancer = ifelse(last_cancer_date >= (covid_pcr_date - 365), 1, 0)
+)
+
+rawdata0 <- rawdata0  %>% rowwise() %>% 
+mutate(cancer_3cat = ifelse(cancer == 0, 'no cancer', 
+             ifelse(recent_cancer == 1, 'cancer, recent', 'cancer, no recent'))
+       )
+```
 
 
 ## sample to test
@@ -220,20 +337,17 @@ colnames(rawdata0) <- tolower(colnames(rawdata0))
 
 
 
-exact the earlies date of cancer record as cancer_date
-```{r}
-cancer_dx_dates <- str_split(rawdata0$cancer_dx_dates, pattern = '\\|')
-cancer_dx_dates <- lapply(cancer_dx_dates, as.Date, format='%m/%d/%Y')
-cancer_dx_dates <- lapply(cancer_dx_dates, sort, decreasing = FALSE)
-cancer_dx_dates <- lapply(cancer_dx_dates, function(x) if(length(x) == 0) NA_integer_ else x)
-cancer_date <- sapply(cancer_dx_dates, `[[`, 1)
-rawdata0$cancer_date <- as.Date(cancer_date, origin ="1970-01-01")
-```
+<!-- exact the earlies date of cancer record as cancer_date -->
+<!-- ```{r} -->
+<!-- cancer_dx_dates <- str_split(rawdata0$cancer_dx_dates, pattern = '\\|') -->
+<!-- cancer_dx_dates <- lapply(cancer_dx_dates, as.Date, format='%m/%d/%Y') -->
+<!-- cancer_dx_dates <- lapply(cancer_dx_dates, sort, decreasing = FALSE) -->
+<!-- cancer_dx_dates <- lapply(cancer_dx_dates, function(x) if(length(x) == 0) NA_integer_ else x) -->
+<!-- cancer_date <- sapply(cancer_dx_dates, `[[`, 1) -->
+<!-- rawdata0$cancer_date <- as.Date(cancer_date, origin ="1970-01-01") -->
+<!-- ``` -->
 
-```{r}
-rawdata0 <- rawdata0 %>% 
-  select(-c(cancer_dx_dates, cancer_dx_codes))
-```
+
 
 
 <!-- ```{r} -->
@@ -278,11 +392,6 @@ rawdata0 <- rawdata0 %>%
 head(rawdata0)
 ```
 
-
-```{r}
-# make a demo sample
-# rawdata0 <- rawdata0[sample(nrow(rawdata0), 10000, replace = FALSE),]
-```
 
 
 

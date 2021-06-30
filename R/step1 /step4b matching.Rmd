@@ -31,7 +31,7 @@ load('data/final_dat.RData')
 # or  GENDER="Unknown" or     
 # REGION="z: Other/Unkn"      
 # or  age=. or cancer=.  or   
-# N_comorbity=. or N_Posi_Comorb=. then delete; *delete missing except race because other and missing are mixed and there's a lot;
+# N_comorbity=. or N_Posi_Comorb=. then delete; *delete missing except race because other and missing are mixed and theres a lot;
 # run;
 
 #match on cancer
@@ -43,14 +43,15 @@ comorbidity <- c('charlson_index', 'n_comorbidity', 'any_malignancy', 'hiv', 're
               'rheumatic', 'chronic_pulmonary', 'cerebrovascular', 'dementia',
               'peripheral_vascular', 'heart_failure', 'myocardial_infarction', 
               'obesity', 'cardiovascular', 'smoking_infarction', 'wheelchair',
-              'dysphagia')
+              'dysphagia',
+              'diabetes', 'liver_disease')
 
 
 
 
-selected_var <- c('cancer', 'gender', 'region', 'age_gp', 'race_gp', 
+selected_var <- c('patient_id', 'cancer', 'gender', 'region', 'age_gp', 'race_gp', 
                   comorbidity, 
-                   't_30', 'death', 'inpatient', 'ventilation', 'icu', 'death_on_month_0')
+                   't_30', 'death', 'inpatient', 'ventilation', 'icu', 'death_on_month_0', 'death30', 'death90')
 
 
 dat_for_matching <- final_dat %>% 
@@ -72,9 +73,22 @@ dat_for_matching <- final_dat %>%
 # need to refactoring coding
 # age or age_gp
 library(MatchIt)
-m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp + 
-                            charlson_index) ^ 2, 
-                  data = dat_for_matching, method = "nearest", ratio = 1)
+m.out <-  matchit(cancer ~ gender + region + age_gp + race_gp +
+                  renal + hemiplegia + diabetes_without_cc + diabetes_with_cc + mild_liver + severe_liver + peptic_ulcer + 
+              rheumatic + chronic_pulmonary + cerebrovascular + dementia + 
+              peripheral_vascular + heart_failure +
+              obesity + cardiovascular + smoking_infarction + dysphagia +
+                # additional 
+              hiv + wheelchair,
+                  data = dat_for_matching, method = "nearest", caliper=0.2, ratio = 1)
+
+# c('any_malignancy', 'hiv', 'renal', 'hemiplegia', 'diabetes_with_cc',
+#               'diabetes_without_cc', 'severe_liver',  'mild_liver', 'peptic_ulcer', 
+#               'rheumatic', 'chronic_pulmonary', 'cerebrovascular', 'dementia', 
+#               'peripheral_vascular', 'heart_failure', 'myocardial_infarction',
+#               'obesity', 'cardiovascular', 'smoking_infarction', 'wheelchair',
+#               'dysphagia', 'diabetes', 'liver_disease')
+
 
 # m.out <-  matchit(cancer ~ gender + region + age_gp + race_gp + 
 #                               chronic_kidney_disease + chronic_obstructive_pulmonary
@@ -89,8 +103,15 @@ m.out <-  matchit(cancer ~ (gender + region + age_gp + race_gp +
 
 ```{r}
 options(max.print=10000)
-summary(m.out,  addlvariables = ~ (gender + region + age_gp + race_gp + 
-                            charlson_index) ^ 2)
+summary(m.out)
+        # addlvariables = c('any_malignancy', 'hiv', 'renal', 'hemiplegia', 'diabetes_with_cc',
+        #       'diabetes_without_cc', 'severe_liver',  'mild_liver', 'peptic_ulcer', 
+        #       'rheumatic', 'chronic_pulmonary', 'cerebrovascular', 'dementia', 
+        #       'peripheral_vascular', 'heart_failure', 'myocardial_infarction',
+        #       'obesity', 'cardiovascular', 'smoking_infarction', 'wheelchair',
+        #       'dysphagia', 'diabetes', 'liver_disease'), data=dat_for_matching)
+
+
              # addlvariables = ~ (gender + region + age_gp + race_gp + any_malignancy + hiv + renal + hemiplegia + diabetes_with_cc +
              #                diabetes_without_cc + severe_liver + mild_liver + peptic_ulcer + 
              #                rheumatic + chronic_pulmonary + cerebrovascular + dementia +
@@ -105,7 +126,7 @@ m.data <- match.data(m.out)
 
 ```{r}
 library(cobalt)
-love.plot(m.out, abs = TRUE, binary = 'std',
+love.plot(m.out, abs = TRUE,
           thresholds = c(m = .1),
           position = "bottom")
 ```
@@ -120,9 +141,7 @@ summary(coxphfit)
 ```{r}
 library(lmtest)
 library(sandwich)
-model_PSM_death_same_month <- glm(death_on_month_0 ~ cancer, data = m.data, family = binomial(link = "logit"))
-(model_PSM_death_same_month_coef <- coeftest(model_PSM_death_same_month, vcov. = vcovCL, cluster = ~subclass))
-t_death <- as.table(model_PSM_death_same_month_coef[2, ])
+
 ```
 
 
@@ -145,35 +164,79 @@ model_PSM_icu <- glm(icu ~ cancer, data =  m.data, family = binomial(link = "log
 (model_PSM_icu_coef <- coeftest(model_PSM_icu, vcov. = vcovCL, cluster = ~subclass))
 t_icu <- as.table(model_PSM_icu_coef)[2, ]
 ```
+```{r}
+model_PSM_death_same_month <- glm(death ~ cancer, data = m.data, family = binomial(link = "logit"))
+(model_PSM_death_same_month_coef <- coeftest(model_PSM_death_same_month, vcov. = vcovCL, cluster = ~subclass))
+t_death <- as.table(model_PSM_death_same_month_coef[2, ])
+```
+
+
+```{r}
+model_PSM_death_same_month <- glm(death30 ~ cancer, data = m.data, family = binomial(link = "logit"))
+(model_PSM_death_same_month_coef <- coeftest(model_PSM_death_same_month, vcov. = vcovCL, cluster = ~subclass))
+t_death30 <- as.table(model_PSM_death_same_month_coef[2, ])
+```
+
+```{r}
+model_PSM_death_same_month <- glm(death90 ~ cancer, data = m.data, family = binomial(link = "logit"))
+(model_PSM_death_same_month_coef <- coeftest(model_PSM_death_same_month, vcov. = vcovCL, cluster = ~subclass))
+t_death90 <- as.table(model_PSM_death_same_month_coef[2, ])
+```
+
 
 ```{r}
 options(digits=3)
-(t <- rbind(t_inpatient, t_ventilation, t_icu, t_death))
+(t <- as_tibble(rbind(t_inpatient, t_ventilation, t_icu, t_death, t_death30, t_death90), rownames = 'outcome'))
 ```
 
 
 ```{r}
 t_model <- cbind(ts, t)
-(t_model <- t_model[, c(1, 4, 5, 8)])
+(t_model <- t_model[, c(1, 2, 5, 7, 10)])
 ```
 
 ```{r}
 # t_model <- rbind(colnames(t_model), t_model)
-# colnames(t_model) <- c('simple logistic regression', '', 'logistic regression with PSM', '')
-t_model
+# colnames(t_model) <- c(simple logistic regression, , logistic regression with PSM, )
+colnames(t_model) <- c('outcome', 'Estimate1', 'P-value1', 'Estimate2', 'P-value2' )
+t_model %>% mutate(OR1 = exp(Estimate1),
+                   OR2 = exp(Estimate2)) %>% 
+  select(outcome, Estimate1, OR1, `P-value1`,  `Estimate2`, OR2, `P-value2`)
 ```
 
 
 
 ```{r}
-model_surv_3 <- survfit(Surv(t_30, death) ~ cancer + age_gp, data = m.data) 
-ggsurvplot(model_surv_3, data = final_dat_complete, conf.int = TRUE, ylim=c(0.7, 1))
-```
-```{r}
-var_list <- c('age_gp', 'gender', 'race_gp', 'region', 'charlson_index')
+# analysis stratified by three cancer group
 
-table_baseline_before <- descriptive_table(var_list, 'cancer', final_dat) %>% select(-c(Total)) 
-table_baseline_after <- descriptive_table(var_list, 'cancer', m.data) %>% select(-c(variable, level, Total))
+library(survminer)
+
+cancer_status <- final_dat %>% select(patient_id, cancer_3cat)
+
+m.data.survival <- merge(m.data, cancer_status, by.x = 'patient_id', by.y='patient_id',  all.x=TRUE)
+
+
+
+# need to create cancer_3cat from step1 
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer, data = final_dat)
+ggsurvplot(model_surv_3, data = final_dat, conf.int = TRUE, ylim=c(0.9, 1))
+
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer_3cat, data = final_dat)
+ggsurvplot(model_surv_3, data = final_dat, conf.int = TRUE, ylim=c(0.9, 1))
+
+
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer, data = m.data.survival) 
+ggsurvplot(model_surv_3, data = m.data.survival, conf.int = TRUE, ylim=c(0.9, 1))
+
+model_surv_3 <- survfit(Surv(t_30, death) ~ cancer_3cat, data = m.data.survival) 
+ggsurvplot(model_surv_3, data = m.data.survival, conf.int = TRUE, ylim=c(0.9, 1))
+```
+
+```{r}
+var_list <- c(age_gp, gender, race_gp, region, charlson_index)
+
+table_baseline_before <- descriptive_table(var_list, cancer, final_dat) %>% select(-c(Total)) 
+table_baseline_after <- descriptive_table(var_list, cancer, m.data) %>% select(-c(variable, level, Total))
 
 
 cbind(table_baseline_before, table_baseline_after)

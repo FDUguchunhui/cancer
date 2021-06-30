@@ -64,12 +64,17 @@ rawdata3 <- rawdata2 %>%
                            dysphagia, na.rm = TRUE),
          charlson_index = (cardiovascular + myocardial_infarction + heart_failure + peripheral_vascular + cerebrovascular +
            dementia + chronic_pulmonary + rheumatic + peptic_ulcer + mild_liver + diabetes_without_cc) +
-           (hemiplegia + renal + diabetes_with_cc) + 3 * (severe_liver) + 6 * (hiv))
+           (hemiplegia + renal + diabetes_with_cc) + 3 * (severe_liver) + 6 * (hiv),
+         liver_disease = ifelse(severe_liver == 1 || mild_liver == 1, 1, 0),
+         diabetes = ifelse(diabetes_with_cc == 1 || diabetes_without_cc == 1, 1, 0))
 
 #         n_posi_comorb=sum(asthma,cerebrovascular,cystic_fibrosis,
 # hypertension,other_immuno,liver_disease,dementia,
 # overweight01,pulmonary_fibrosis,thalassemia,type_1_diabetes_mellitus, na.rm = TRUE)
 ```
+
+
+
 
 
 ```{r}
@@ -205,7 +210,7 @@ rawdata3 <- rawdata3 %>%
 
 rawdata4 <- rawdata3 %>% 
   # rowwise() %>% 
-  mutate(cancer_year = as.numeric(format(`cancer_date`, "%Y"))
+  mutate(first_cancer_year = as.numeric(format(`first_cancer_date`, "%Y"))
          )
 
 
@@ -215,8 +220,8 @@ rawdata4 <- rawdata3 %>%
 rawdata4 <- rawdata4 %>% 
   rowwise() %>% 
   mutate(
-         age_at_cancer = (cancer_year - birth_yr),
-         duration = as.numeric(covid_pcr_date - cancer_date)/365.25,
+         age_at_cancer = (first_cancer_year - birth_yr),
+         duration = as.numeric(covid_pcr_date - first_cancer_date)/365.25,
 
          survive_5yr_more = ifelse(duration > 5, 1,
                                    ifelse(duration >=0 && duration <=5, 0, NA)),
@@ -290,7 +295,7 @@ rawdata5 <- rawdata4 %>%
   mutate(time_death = as.numeric(date_of_death - `covid diag date`),
          time_death = ifelse(time_death >= -15 && time_death < 0, 0, 
                              ifelse(time_death < -15, NA, time_death)),
-         end_study = as.Date('2021-01-28')                                       
+         end_study = as.Date('2021-01-31')                                       
          ) %>% 
   rowwise() %>% 
   mutate(t = ifelse(death == 1, time_death, 
@@ -300,6 +305,8 @@ rawdata5 <- rawdata4 %>%
          death = ifelse(death == 1 && time_death > 30, 0, death),
          t_30 = min(t, 30))
 ```
+
+
 
 ## create death month instead of days
 ```{r}
@@ -314,7 +321,9 @@ rawdata5 <- rawdata5 %>%
          month_to_death = ifelse(month_to_death_censor == 0, 12 * (year(as.Date('2021/01/08')) - year(`covid diag date`)) + month(as.Date('2021/01/08')) - month(`covid diag date`),
                                  ifelse(month_to_death < 0, NA, month_to_death)
          ),
-         death_on_month_0 = ifelse((month_to_death_censor == 1) && (month_to_death == 0), 1, 0)
+         death_on_month_0 = ifelse((month_to_death_censor == 1) && (month_to_death == 0), 1, 0),
+         death30 = ifelse((month_to_death_censor == 1) && (month_to_death <= 0), 1, 0),
+         death90 = ifelse((month_to_death_censor == 1) && (month_to_death <= 3), 1, 0)
   )
 
 ```
@@ -452,7 +461,10 @@ nrow(rawdata8_exclusion1)
 
 
 # exclusion 2
-# at least the patient enter the database for 365 days
+at least require patients to enter the database for 365 days 
+question: to make sure enough time to make cancer effect to take effect? or to make sure cancer info to be caught?
+-We decided to limit patients who had any prior record within year to ensure look back time to capture prior cancer treatment and comorbidities. Instead of limiting patients, can you add cohort entering and exit dates without dropping patients, so I can run sensitivity analysis as well?
+-Cancer treatment in different time windows: I added different cancer treatment windows so we can run sensitivity analysis as well (1 month, 3 month, 6 month)
 ```{r}
 rawdata8_exclusion2 <- rawdata8_exclusion1 %>% 
   filter(difftime(covid_pcr_date, entry_date, units='days') >= 365) 
@@ -461,8 +473,14 @@ nrow(rawdata8_exclusion2)
 
 
 ```{r}
+proc_freq(rawdata8_exclusion2, 'cancer')
+proc_freq(rawdata8_exclusion2[rawdata8_exclusion2$cancer == 1, ], 'recent_cancer')
+```
 
 
+
+```{r}
+final_dat <- rawdata8_exclusion2
 save(final_dat, file = 'data/final_dat.RData')
 ```
 
